@@ -6,7 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Physical AI の論文と資料の収集物です。アプリケーションではないので、ビルド、lint、テストはありません。例外は `isaacsim/tools/` の単発スクリプトで、FR3 の USD アセットを修正したときのものです。
 
-git 管理されていません。編集や削除は元に戻せないので、一括処理の前に対象を確認してください。
+git で管理しています。`origin` は公開リポジトリ `tablespoonful/physical_ai` で、push した内容はすぐに公開されます。`.gitattributes` で改行変換を無効にしているので、原典のバイト列は変わりません。
+
+`*.pdf` は `.gitignore` の対象で、リポジトリにも履歴にも含めず、作業ツリーにだけ置きます。クローンには PDF がありません。
 
 ## 構成
 
@@ -20,6 +22,24 @@ git 管理されていません。編集や削除は元に戻せないので、�
 - `docs/`: 公式資料の取得時点の本文。`franka(fr3)/docs/` では `.rst.txt` や `.pdf` の原本と `.md` が並ぶ
 
 `isaacsim/` だけ形式が異なり、`assets/`、`renders/`、`tools/`、`docs/`、`notes/` からなります。
+
+## Wiki
+
+`wiki/` は分野をまたぐ知識の層で、[OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format) v0.2 の形式です。分野フォルダと `isaacsim/` は原典として扱い、wiki の作業では変更しません。現在の対象は FR3 + Isaac Sim だけです。
+
+質問に答えるときは `wiki/index.md` から読み、数値や但し書きは出典の原典で確認します。ページの書き方は次のとおりです。
+
+- frontmatter に `type`、`title`、`description`、`generated`、`status`、`sources` を書きます。LLM が書いたページは人が確認するまで `status: draft` とし、`verified` は実際に確認した人かプロセスだけを記録します。
+- 主張には `sources[].id` をラベルにした脚注を付けます。
+- `checked_with` と `not_checked_with` は OKF の外の独自キーです。何で確認し、何で確認していないかを書きます。原典の「未確認」は要約で消さず、確認済みの事実と未確認の推測を本文で分けます。
+- 読んでいない論文は取り込みません。候補やカタログの全件処理はしません。
+- ページを足したら `wiki/index.md` と `wiki/log.md` を更新し、lint を通します。
+
+```powershell
+uv run --no-project --with pyyaml python tools/wiki_lint.py
+```
+
+wiki の問題は ERROR で終了コード 1、既存カタログの問題は WARN です。参照先は Linux で失敗しないよう、大文字小文字まで一致するか検査します。分野を超えて使える教訓は `~/knowledge/` へ置きます。
 
 ## 収集物の扱い
 
@@ -66,6 +86,7 @@ Blender の USD 読み込みでは配置が崩れるので、`ext.py` の OBJ �
 ### 既知の問題
 
 - `payloads/materials.usda` は `../textures/` を参照していますが、実際のフォルダは `Textures/` です。Windows では解決できても、Linux の Isaac Sim ではテクスチャが見つからなくなります。
+- ハンドの 9 メッシュには法線も UV もありません。腕の 50 メッシュにはどちらもあります。
 - `SHA256SUMS` は元の配布物の値で、変更後のファイルとは一致しません。
 - `Finger_Aluminum` と `Hand_Aluminum` は名前と違い、ユニクロメッキ調の値です。
 - 色、粗さ、`ior` は実測値でも Franka 公式の値でもありません。ハンドは見た目だけで、関節、衝突判定、質量がありません。
