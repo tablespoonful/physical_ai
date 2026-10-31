@@ -8,6 +8,8 @@ Physical AI の論文と資料の収集物です。アプリケーションで�
 
 git で管理しています。`origin` は公開リポジトリ `tablespoonful/physical_ai` で、push した内容はすぐに公開されます。`.gitattributes` で改行変換を無効にしているので、原典のバイト列は変わりません。
 
+`*.pdf` は `.gitignore` の対象で、作業ツリーにだけあります。初回コミット `78e4f2c` は PDF を追跡しているので、そこを checkout してから現在のブランチへ戻ると、手元の PDF が削除されます。古い履歴は `git show` で読みます。
+
 ## 構成
 
 分野フォルダは `VLA`、`worldmodel`、`ヒューマノイド`、`franka(fr3)`、`franka_ROS2` の 5 つで、形式は共通です。
