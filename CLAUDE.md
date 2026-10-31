@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Physical AI の論文と資料の収集物です。アプリケーションではないので、ビルド、lint、テストはありません。例外は `isaacsim/tools/` の単発スクリプトで、FR3 の USD アセットを修正したときのものです。
 
-git で管理しています。リモートは未設定です。公式 PDF やマニュアルなどの再配布物を含むので、公開リポジトリへ push しないでください。`.gitattributes` で改行変換を無効にしているので、原典のバイト列は変わりません。
+git で管理しています。`origin` は公開リポジトリ `tablespoonful/physical_ai` で、push した内容はすぐに公開されます。`.gitattributes` で改行変換を無効にしているので、原典のバイト列は変わりません。
 
 ## 構成
 
