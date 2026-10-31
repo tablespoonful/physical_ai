@@ -1,0 +1,14 @@
+| title | year | venue | status | arxiv_id | pdf_url | code_url | topic | verify_url |
+|---|---|---|---|---|---|---|---|---|
+| LIBERO-Plus: In-depth Robustness Analysis of Vision-Language-Action Models | 2025 | arXiv | verified | 2510.13626 | https://arxiv.org/pdf/2510.13626 |  | benchmark-robustness | https://arxiv.org/abs/2510.13626 |
+| LIBERO-PRO: Towards Robust and Fair Evaluation of Vision-Language-Action Models Beyond Memorization | 2025 | arXiv | verified | 2510.03827 | https://arxiv.org/pdf/2510.03827 |  | benchmark-robustness | https://arxiv.org/abs/2510.03827 |
+| An Action Is Worth One Patch: Unified World-Action Modeling with PatchWAM | 2026 | arXiv | verified | 2609.25961 | https://arxiv.org/pdf/2609.25961 |  | world-action-model | https://arxiv.org/abs/2609.25961 |
+| Gemini Robotics 1.5: Pushing the Frontier of Generalist Robots with Advanced Embodied Reasoning, Thinking, and Motion Transfer | 2025 | arXiv | verified | 2510.03342 | https://arxiv.org/pdf/2510.03342 |  | vla-vendor | https://arxiv.org/abs/2510.03342 |
+| Galaxea Open-World Dataset and G0 Dual-System VLA Model | 2025 | arXiv | verified | 2509.00576 | https://arxiv.org/pdf/2509.00576 | https://opengalaxea.github.io/G0/ | dataset | https://arxiv.org/abs/2509.00576 |
+| RoboTwin 2.0: A Scalable Data Generator and Benchmark with Strong Domain Randomization for Robust Bimanual Robotic Manipulation | 2025 | arXiv | verified | 2506.18088 | https://arxiv.org/pdf/2506.18088 |  | benchmark | https://arxiv.org/abs/2506.18088 |
+| How VLAs (Really) Work In Open-World Environments | 2026 | arXiv | verified | 2604.21192 | https://arxiv.org/pdf/2604.21192 |  | critique | https://arxiv.org/abs/2604.21192 |
+| Vision-Language-Action Safety: Threats, Challenges, Evaluations, and Mechanisms | 2026 | arXiv | verified | 2604.23775 | https://arxiv.org/pdf/2604.23775 |  | safety-survey | https://arxiv.org/abs/2604.23775 |
+| RoboArena: Distributed Real-World Evaluation of Generalist Robot Policies | 2025 | arXiv | title-verified-by-search | 2506.18123 | https://arxiv.org/pdf/2506.18123 |  | benchmark-real-world | https://arxiv.org/abs/2506.18123v1 |
+| AIRoA MoMa Dataset: A Large-Scale Hierarchical Dataset for Mobile Manipulation | 2025 | arXiv | title-verified-by-search | 2509.25032 | https://arxiv.org/pdf/2509.25032 | https://huggingface.co/datasets/airoa-org/airoa-moma | dataset-japan | https://arxiv.org/abs/2509.25032 |
+| DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset | 2024 | arXiv | id-from-project-page | 2403.12945 | https://arxiv.org/pdf/2403.12945 | https://github.com/droid-dataset/droid | dataset | https://droid-dataset.github.io/ |
+| ManiSkill3 | 2025 | RSS | id-from-readme-unverified | 2410.00425 | https://arxiv.org/pdf/2410.00425 | https://github.com/haosulab/ManiSkill | benchmark | https://github.com/haosulab/ManiSkill |

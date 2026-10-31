@@ -1,0 +1,8 @@
+franka_simulation v0.1.0 の fr3v2_1 を元に作成。
+- 外装、金属、黒、濃灰の材質を分離した。
+- メッシュに UV (primvars:st、box 投影、繰り返し 25cm) を追加した。元のメッシュに UV はない。
+- 手続き生成の basecolor、roughness、normal を接続した。実物の測定や撮影に基づくものではない。
+- normal は OpenGL 形式 (+Y) で、UsdUVTexture の scale=2、bias=-1 で読む。
+- SHA256SUMS は元の配布物の値で、変更ファイルとは一致しない。
+- link8 の下に Franka Hand の見た目用メッシュと材質を追加した。関節、衝突判定、質量はない。
+- 詳細は ../../notes/fr3_usd_work_log.md を参照。

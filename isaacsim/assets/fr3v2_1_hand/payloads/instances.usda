@@ -1,0 +1,1278 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.2"
+    }
+    doc = """Generated from Composed Stage of root layer /tmp/tmphj57yqzh/fr3v2_1.usdc
+
+
+Generated from Composed Stage of root layer /tmp/urdf_import_fr3v2_1_iswoclvo/usdex_fr3v2_1/fr3v2_1.usdc
+
+
+Generated from Composed Stage of root layer /tmp/urdf_import_fr3v2_1_iswoclvo/temp_fr3v2_1/fr3v2_1.usd
+
+
+Generated from Composed Stage of root layer /home/franka/isaacsim6_artifacts/release-final-20260807/models/fr3v2_1/usd/fr3v2_1/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Scope "Instances"
+{
+    def Xform "FR3_Version2_Link0_8" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0_8>
+    )
+    {
+        over "FR3_Version2_Link0_8" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0_8/VisualMaterials/LED_Lights_white>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "LED_Lights_white" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/LED_Lights_white>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link0_7" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0_7>
+    )
+    {
+        over "FR3_Version2_Link0_7" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0_7/VisualMaterials/Coordinates_Y>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Coordinates_Y" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/Coordinates_Y>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link0_6" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0_6>
+    )
+    {
+        over "FR3_Version2_Link0_6" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0_6/VisualMaterials/Coordinates_X>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Coordinates_X" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/Coordinates_X>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link0_5" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0_5>
+    )
+    {
+        over "FR3_Version2_Link0_5" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0_5/VisualMaterials/tn__ReferenceTriangles_xI>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__ReferenceTriangles_xI" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__ReferenceTriangles_xI>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link0_4" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0_4>
+    )
+    {
+        over "FR3_Version2_Link0_4" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0_4/VisualMaterials/EU>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "EU" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/EU>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link0_3" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0_3>
+    )
+    {
+        over "FR3_Version2_Link0_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0_3/VisualMaterials/tn__Alignmentsigns_tE>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__Alignmentsigns_tE" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__Alignmentsigns_tE>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link0_2" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0_2>
+    )
+    {
+        over "FR3_Version2_Link0_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0_2/VisualMaterials/Connectors_Metal>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Connectors_Metal" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Metal>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link0_1" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0_1>
+    )
+    {
+        over "FR3_Version2_Link0_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0_1/VisualMaterials/Connectors_Black>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Connectors_Black" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Black>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link0_0" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0_0>
+    )
+    {
+        over "FR3_Version2_Link0_0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0_0/VisualMaterials/tn__7016_Buttons_Logos_Banderole_>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__7016_Buttons_Logos_Banderole_" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Anthracite>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "tn__FR3_Version2_Link0001_cW0" (
+        prepend references = @./geometries.usd@</Geometries/tn__FR3_Version2_Link0001_cW0>
+    )
+    {
+        over "tn__FR3_Version2_Link0001_cW0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/tn__FR3_Version2_Link0001_cW0/VisualMaterials/Shells_white>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Shells_white" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Shell_White>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link0" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link0>
+    )
+    {
+        over "FR3_Version2_Link0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link0/VisualMaterials/EUT>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "EUT" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/EUT>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link1_2" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link1_2>
+    )
+    {
+        over "FR3_Version2_Link1_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link1_2/VisualMaterials/Shell_White>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Shell_White" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Shell_White>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link1_1" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link1_1>
+    )
+    {
+        over "FR3_Version2_Link1_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link1_1/VisualMaterials/Rotation_direction>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Rotation_direction" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/Rotation_direction>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link1_0" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link1_0>
+    )
+    {
+        over "FR3_Version2_Link1_0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link1_0/VisualMaterials/Reference_Triangles>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Reference_Triangles" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__ReferenceTriangles_xI>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link1" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link1>
+    )
+    {
+        over "FR3_Version2_Link1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link1/VisualMaterials/Axis_Number>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Axis_Number" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/Axis_Number>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link2_2" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link2_2>
+    )
+    {
+        over "FR3_Version2_Link2_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link2_2/VisualMaterials/Shell_White_1>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Shell_White_1" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Shell_White>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link2_1" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link2_1>
+    )
+    {
+        over "FR3_Version2_Link2_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link2_1/VisualMaterials/tn__Rotationdirection_vH>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__Rotationdirection_vH" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__Rotationdirection_vH>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link2_0" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link2_0>
+    )
+    {
+        over "FR3_Version2_Link2_0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link2_0/VisualMaterials/tn__ReferenceTriangles_1_zK>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__ReferenceTriangles_1_zK" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__ReferenceTriangles_xI>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link2" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link2>
+    )
+    {
+        over "FR3_Version2_Link2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link2/VisualMaterials/tn__AxisNumber_kA>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__AxisNumber_kA" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__AxisNumber_kA>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link3_2" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link3_2>
+    )
+    {
+        over "FR3_Version2_Link3_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link3_2/VisualMaterials/Shell_white>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Shell_white" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Shell_White>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link3_1" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link3_1>
+    )
+    {
+        over "FR3_Version2_Link3_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link3_1/VisualMaterials/tn__RotationDirection_vH>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__RotationDirection_vH" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__Rotationdirection_vH>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link3_0" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link3_0>
+    )
+    {
+        over "FR3_Version2_Link3_0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link3_0/VisualMaterials/tn__ReferenceTriangles_2_zK>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__ReferenceTriangles_2_zK" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__ReferenceTriangles_xI>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link3" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link3>
+    )
+    {
+        over "FR3_Version2_Link3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link3/VisualMaterials/tn__AxisNumber_1_mC>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__AxisNumber_1_mC" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__AxisNumber_kA>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link4_2" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link4_2>
+    )
+    {
+        over "FR3_Version2_Link4_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link4_2/VisualMaterials/Shell_white_1>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Shell_white_1" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Shell_White>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link4_1" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link4_1>
+    )
+    {
+        over "FR3_Version2_Link4_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link4_1/VisualMaterials/tn__RotationDirection_1_xJ>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__RotationDirection_1_xJ" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__Rotationdirection_vH>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link4_0" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link4_0>
+    )
+    {
+        over "FR3_Version2_Link4_0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link4_0/VisualMaterials/Reference_Traingle>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Reference_Traingle" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__ReferenceTriangles_xI>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link4" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link4>
+    )
+    {
+        over "FR3_Version2_Link4" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link4/VisualMaterials/Axis_Number_1>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Axis_Number_1" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__AxisNumber_kA>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link5_3" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link5_3>
+    )
+    {
+        over "FR3_Version2_Link5_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link5_3/VisualMaterials/tn__7016_Buttons_Logos_Banderole_1_>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__7016_Buttons_Logos_Banderole_1_" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Anthracite>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link5_2" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link5_2>
+    )
+    {
+        over "FR3_Version2_Link5_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link5_2/VisualMaterials/Shell_White_2>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Shell_White_2" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Shell_White>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link5_1" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link5_1>
+    )
+    {
+        over "FR3_Version2_Link5_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link5_1/VisualMaterials/Rotation_Direction>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Rotation_Direction" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__Rotationdirection_vH>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link5_0" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link5_0>
+    )
+    {
+        over "FR3_Version2_Link5_0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link5_0/VisualMaterials/tn__ReferenceTriangles_3_zK>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__ReferenceTriangles_3_zK" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__ReferenceTriangles_xI>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link5" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link5>
+    )
+    {
+        over "FR3_Version2_Link5" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link5/VisualMaterials/Axis_Number_2>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Axis_Number_2" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__AxisNumber_kA>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_9" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_9>
+    )
+    {
+        over "FR3_Version2_Link6_9" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_9/VisualMaterials/tn__7016_Buttons_Logos_Banderole_2_>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__7016_Buttons_Logos_Banderole_2_" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Anthracite>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_8" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_8>
+    )
+    {
+        over "FR3_Version2_Link6_8" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_8/VisualMaterials/Disc_Lights_Blue>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Disc_Lights_Blue" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/Disc_Lights_Blue>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_7" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_7>
+    )
+    {
+        over "FR3_Version2_Link6_7" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_7/VisualMaterials/Shell_White_3>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Shell_White_3" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Shell_White>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_6" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_6>
+    )
+    {
+        over "FR3_Version2_Link6_6" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_6/VisualMaterials/Disc_Lights_White>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Disc_Lights_White" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/Disc_Lights_White>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_5" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_5>
+    )
+    {
+        over "FR3_Version2_Link6_5" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_5/VisualMaterials/Disc_Lights_Red>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Disc_Lights_Red" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/Disc_Lights_Red>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_4" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_4>
+    )
+    {
+        over "FR3_Version2_Link6_4" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_4/VisualMaterials/tn__7016_Buttons_Logos_Banderole_2_>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__7016_Buttons_Logos_Banderole_2_" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Anthracite>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_3" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_3>
+    )
+    {
+        over "FR3_Version2_Link6_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_3/VisualMaterials/Disc_Lights_Green>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Disc_Lights_Green" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/Disc_Lights_Green>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_2" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_2>
+    )
+    {
+        over "FR3_Version2_Link6_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_2/VisualMaterials/tn__RotationDirection_2_xJ>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__RotationDirection_2_xJ" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__Rotationdirection_vH>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_1" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_1>
+    )
+    {
+        over "FR3_Version2_Link6_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_1/VisualMaterials/Flange_Tie_Metal>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Flange_Tie_Metal" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Metal>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6_0" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6_0>
+    )
+    {
+        over "FR3_Version2_Link6_0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6_0/VisualMaterials/tn__ReferenceTriangles_4_zK>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__ReferenceTriangles_4_zK" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__ReferenceTriangles_xI>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link6" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link6>
+    )
+    {
+        over "FR3_Version2_Link6" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link6/VisualMaterials/tn__AxisNumber_2_mC>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__AxisNumber_2_mC" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__AxisNumber_kA>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link7_3" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link7_3>
+    )
+    {
+        over "FR3_Version2_Link7_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link7_3/VisualMaterials/Flange_Tie_Metal_1>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Flange_Tie_Metal_1" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Metal>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link7_2" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link7_2>
+    )
+    {
+        over "FR3_Version2_Link7_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link7_2/VisualMaterials/Rotation_Direction_1>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Rotation_Direction_1" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/Rotation_Direction_1>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link7_1" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link7_1>
+    )
+    {
+        over "FR3_Version2_Link7_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link7_1/VisualMaterials/tn__ReferenceTriangles_5_zK>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__ReferenceTriangles_5_zK" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__ReferenceTriangles_xI>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "tn__FR3_Version2_Link7_0001_dZ0" (
+        prepend references = @./geometries.usd@</Geometries/tn__FR3_Version2_Link7_0001_dZ0>
+    )
+    {
+        over "tn__FR3_Version2_Link7_0001_dZ0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/tn__FR3_Version2_Link7_0001_dZ0/VisualMaterials/tn__AxisNumber_3_mC>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__AxisNumber_3_mC" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/tn__AxisNumber_3_mC>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link7_0" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link7_0>
+    )
+    {
+        over "FR3_Version2_Link7_0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link7_0/VisualMaterials/tn__7016_Buttons_Logos_Banderole_3_>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "tn__7016_Buttons_Logos_Banderole_3_" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Anthracite>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "tn__FR3_Version2_Link7001_cW0" (
+        prepend references = @./geometries.usd@</Geometries/tn__FR3_Version2_Link7001_cW0>
+    )
+    {
+        over "tn__FR3_Version2_Link7001_cW0" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/tn__FR3_Version2_Link7001_cW0/VisualMaterials/Connectors_black>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Connectors_black" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Black>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "FR3_Version2_Link7" (
+        prepend references = @./geometries.usd@</Geometries/FR3_Version2_Link7>
+    )
+    {
+        over "FR3_Version2_Link7" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/FR3_Version2_Link7/VisualMaterials/Shell_White_4>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "Shell_White_4" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/FR3_Shell_White>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "fr3v2_1_link7_collision" (
+        prepend references = @./geometries.usd@</Geometries/fr3v2_1_link7_collision>
+    )
+    {
+        over "fr3v2_1_link7_collision" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "fr3v2_1_link6_collision" (
+        prepend references = @./geometries.usd@</Geometries/fr3v2_1_link6_collision>
+    )
+    {
+        over "fr3v2_1_link6_collision" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "fr3v2_1_link5_collision" (
+        prepend references = @./geometries.usd@</Geometries/fr3v2_1_link5_collision>
+    )
+    {
+        over "fr3v2_1_link5_collision" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "fr3v2_1_link4_collision" (
+        prepend references = @./geometries.usd@</Geometries/fr3v2_1_link4_collision>
+    )
+    {
+        over "fr3v2_1_link4_collision" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "fr3v2_1_link3_collision" (
+        prepend references = @./geometries.usd@</Geometries/fr3v2_1_link3_collision>
+    )
+    {
+        over "fr3v2_1_link3_collision" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "fr3v2_1_link2_collision" (
+        prepend references = @./geometries.usd@</Geometries/fr3v2_1_link2_collision>
+    )
+    {
+        over "fr3v2_1_link2_collision" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "fr3v2_1_link1_collision" (
+        prepend references = @./geometries.usd@</Geometries/fr3v2_1_link1_collision>
+    )
+    {
+        over "fr3v2_1_link1_collision" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "fr3v2_1_link0_collision" (
+        prepend references = @./geometries.usd@</Geometries/fr3v2_1_link0_collision>
+    )
+    {
+        over "fr3v2_1_link0_collision" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+}
+

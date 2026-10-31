@@ -1,0 +1,5 @@
+# 原典を 1 バイトも変えないよう、改行の自動変換を無効にする
+* -text
+*.pdf binary
+*.png binary
+*.usd binary

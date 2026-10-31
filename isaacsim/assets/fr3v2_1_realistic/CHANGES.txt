@@ -1,0 +1,2 @@
+franka_simulation v0.1.0 の fr3v2_1 を元に、materials.usda に 4 材質を追加し、instances.usda の参照先を変更。
+値は実測ではなく開始値。SHA256SUMS は元の配布物の値で、変更ファイルとは一致しない。

@@ -1,0 +1,542 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.2"
+    }
+    defaultPrim = "fr3v2_1"
+    doc = """Generated from Composed Stage of root layer /tmp/tmphj57yqzh/fr3v2_1.usdc
+
+
+Generated from Composed Stage of root layer /tmp/urdf_import_fr3v2_1_iswoclvo/usdex_fr3v2_1/fr3v2_1.usdc
+
+
+Generated from Composed Stage of root layer /tmp/urdf_import_fr3v2_1_iswoclvo/temp_fr3v2_1/fr3v2_1.usd
+
+
+Generated from Composed Stage of root layer /home/franka/isaacsim6_artifacts/release-final-20260807/models/fr3v2_1/usd/fr3v2_1/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    subLayers = [
+        @./physics.usda@
+    ]
+    upAxis = "Z"
+)
+
+over "fr3v2_1"
+{
+    over "Physics"
+    {
+        def MjcActuator "fr3v2_1_joint1_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.003000000026077032, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 87
+            uniform double mjc:forceRange:min = -87
+            uniform double[] mjc:gainPrm = [0.003000000026077032, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target
+            prepend rel mjc:target = </fr3v2_1/Physics/fr3v2_1_joint1>
+        }
+
+        def MjcActuator "fr3v2_1_joint2_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.003000000026077032, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 87
+            uniform double mjc:forceRange:min = -87
+            uniform double[] mjc:gainPrm = [0.003000000026077032, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target
+            prepend rel mjc:target = </fr3v2_1/Physics/fr3v2_1_joint2>
+        }
+
+        def MjcActuator "fr3v2_1_joint3_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.003000000026077032, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 87
+            uniform double mjc:forceRange:min = -87
+            uniform double[] mjc:gainPrm = [0.003000000026077032, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target
+            prepend rel mjc:target = </fr3v2_1/Physics/fr3v2_1_joint3>
+        }
+
+        def MjcActuator "fr3v2_1_joint4_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.003000000026077032, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 87
+            uniform double mjc:forceRange:min = -87
+            uniform double[] mjc:gainPrm = [0.003000000026077032, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target
+            prepend rel mjc:target = </fr3v2_1/Physics/fr3v2_1_joint4>
+        }
+
+        def MjcActuator "fr3v2_1_joint5_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.003000000026077032, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 12
+            uniform double mjc:forceRange:min = -12
+            uniform double[] mjc:gainPrm = [0.003000000026077032, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target
+            prepend rel mjc:target = </fr3v2_1/Physics/fr3v2_1_joint5>
+        }
+
+        def MjcActuator "fr3v2_1_joint6_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.003000000026077032, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 12
+            uniform double mjc:forceRange:min = -12
+            uniform double[] mjc:gainPrm = [0.003000000026077032, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target
+            prepend rel mjc:target = </fr3v2_1/Physics/fr3v2_1_joint6>
+        }
+
+        def MjcActuator "fr3v2_1_joint7_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.003000000026077032, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 12
+            uniform double mjc:forceRange:min = -12
+            uniform double[] mjc:gainPrm = [0.003000000026077032, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target
+            prepend rel mjc:target = </fr3v2_1/Physics/fr3v2_1_joint7>
+        }
+
+        over "fr3v2_1_joint1" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.2
+
+            over "position_based_velocity_limits"
+            {
+            }
+        }
+
+        over "fr3v2_1_joint2" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.2
+
+            over "position_based_velocity_limits"
+            {
+            }
+        }
+
+        over "fr3v2_1_joint3" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.2
+
+            over "position_based_velocity_limits"
+            {
+            }
+        }
+
+        over "fr3v2_1_joint4" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.2
+
+            over "position_based_velocity_limits"
+            {
+            }
+        }
+
+        over "fr3v2_1_joint5" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.2
+
+            over "position_based_velocity_limits"
+            {
+            }
+        }
+
+        over "fr3v2_1_joint6" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.2
+
+            over "position_based_velocity_limits"
+            {
+            }
+        }
+
+        over "fr3v2_1_joint7" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.2
+
+            over "position_based_velocity_limits"
+            {
+            }
+        }
+
+        over "fr3v2_1_base_joint"
+        {
+        }
+    }
+
+    over "Geometry"
+    {
+        over "base"
+        {
+            over "fr3v2_1_link0"
+            {
+                over "fr3v2_1_link1"
+                {
+                    over "fr3v2_1_link2"
+                    {
+                        over "fr3v2_1_link3"
+                        {
+                            over "fr3v2_1_link4"
+                            {
+                                over "fr3v2_1_link5"
+                                {
+                                    over "fr3v2_1_link6"
+                                    {
+                                        over "fr3v2_1_link7"
+                                        {
+                                            over "fr3v2_1_link8"
+                                            {
+                                            }
+
+                                            over "fr3v2_1_link7_visual"
+                                            {
+                                                over "FR3_Version2_Link7_3"
+                                                {
+                                                }
+
+                                                over "FR3_Version2_Link7_2"
+                                                {
+                                                }
+
+                                                over "FR3_Version2_Link7_1"
+                                                {
+                                                }
+
+                                                over "tn__FR3_Version2_Link7_0001_dZ0"
+                                                {
+                                                }
+
+                                                over "FR3_Version2_Link7_0"
+                                                {
+                                                }
+
+                                                over "tn__FR3_Version2_Link7001_cW0"
+                                                {
+                                                }
+
+                                                over "FR3_Version2_Link7"
+                                                {
+                                                }
+                                            }
+
+                                            over "fr3v2_1_link7_collision"
+                                            {
+                                            }
+                                        }
+
+                                        over "fr3v2_1_link6_visual"
+                                        {
+                                            over "FR3_Version2_Link6_9"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6_8"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6_7"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6_6"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6_5"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6_4"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6_3"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6_2"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6_1"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6_0"
+                                            {
+                                            }
+
+                                            over "FR3_Version2_Link6"
+                                            {
+                                            }
+                                        }
+
+                                        over "fr3v2_1_link6_collision"
+                                        {
+                                        }
+                                    }
+
+                                    over "fr3v2_1_link5_accelerometer_top"
+                                    {
+                                    }
+
+                                    over "fr3v2_1_link5_accelerometer_bottom"
+                                    {
+                                    }
+
+                                    over "fr3v2_1_link5_visual"
+                                    {
+                                        over "FR3_Version2_Link5_3"
+                                        {
+                                        }
+
+                                        over "FR3_Version2_Link5_2"
+                                        {
+                                        }
+
+                                        over "FR3_Version2_Link5_1"
+                                        {
+                                        }
+
+                                        over "FR3_Version2_Link5_0"
+                                        {
+                                        }
+
+                                        over "FR3_Version2_Link5"
+                                        {
+                                        }
+                                    }
+
+                                    over "fr3v2_1_link5_collision"
+                                    {
+                                    }
+                                }
+
+                                over "fr3v2_1_link4_accelerometer_top"
+                                {
+                                }
+
+                                over "fr3v2_1_link4_accelerometer_bottom"
+                                {
+                                }
+
+                                over "fr3v2_1_link4_visual"
+                                {
+                                    over "FR3_Version2_Link4_2"
+                                    {
+                                    }
+
+                                    over "FR3_Version2_Link4_1"
+                                    {
+                                    }
+
+                                    over "FR3_Version2_Link4_0"
+                                    {
+                                    }
+
+                                    over "FR3_Version2_Link4"
+                                    {
+                                    }
+                                }
+
+                                over "fr3v2_1_link4_collision"
+                                {
+                                }
+                            }
+
+                            over "fr3v2_1_link3_accelerometer_top"
+                            {
+                            }
+
+                            over "fr3v2_1_link3_accelerometer_bottom"
+                            {
+                            }
+
+                            over "fr3v2_1_link3_visual"
+                            {
+                                over "FR3_Version2_Link3_2"
+                                {
+                                }
+
+                                over "FR3_Version2_Link3_1"
+                                {
+                                }
+
+                                over "FR3_Version2_Link3_0"
+                                {
+                                }
+
+                                over "FR3_Version2_Link3"
+                                {
+                                }
+                            }
+
+                            over "fr3v2_1_link3_collision"
+                            {
+                            }
+                        }
+
+                        over "fr3v2_1_link2_accelerometer_top"
+                        {
+                        }
+
+                        over "fr3v2_1_link2_accelerometer_bottom"
+                        {
+                        }
+
+                        over "fr3v2_1_link2_visual"
+                        {
+                            over "FR3_Version2_Link2_2"
+                            {
+                            }
+
+                            over "FR3_Version2_Link2_1"
+                            {
+                            }
+
+                            over "FR3_Version2_Link2_0"
+                            {
+                            }
+
+                            over "FR3_Version2_Link2"
+                            {
+                            }
+                        }
+
+                        over "fr3v2_1_link2_collision"
+                        {
+                        }
+                    }
+
+                    over "fr3v2_1_link1_accelerometer_top"
+                    {
+                    }
+
+                    over "fr3v2_1_link1_accelerometer_bottom"
+                    {
+                    }
+
+                    over "fr3v2_1_link1_visual"
+                    {
+                        over "FR3_Version2_Link1_2"
+                        {
+                        }
+
+                        over "FR3_Version2_Link1_1"
+                        {
+                        }
+
+                        over "FR3_Version2_Link1_0"
+                        {
+                        }
+
+                        over "FR3_Version2_Link1"
+                        {
+                        }
+                    }
+
+                    over "fr3v2_1_link1_collision"
+                    {
+                    }
+                }
+
+                over "fr3v2_1_link0_accelerometer_top"
+                {
+                }
+
+                over "fr3v2_1_link0_accelerometer_bottom"
+                {
+                }
+
+                over "fr3v2_1_link0_visual"
+                {
+                    over "FR3_Version2_Link0_8"
+                    {
+                    }
+
+                    over "FR3_Version2_Link0_7"
+                    {
+                    }
+
+                    over "FR3_Version2_Link0_6"
+                    {
+                    }
+
+                    over "FR3_Version2_Link0_5"
+                    {
+                    }
+
+                    over "FR3_Version2_Link0_4"
+                    {
+                    }
+
+                    over "FR3_Version2_Link0_3"
+                    {
+                    }
+
+                    over "FR3_Version2_Link0_2"
+                    {
+                    }
+
+                    over "FR3_Version2_Link0_1"
+                    {
+                    }
+
+                    over "FR3_Version2_Link0_0"
+                    {
+                    }
+
+                    over "tn__FR3_Version2_Link0001_cW0"
+                    {
+                    }
+
+                    over "FR3_Version2_Link0"
+                    {
+                    }
+                }
+
+                over "fr3v2_1_link0_collision"
+                {
+                }
+            }
+        }
+    }
+
+    over "Materials"
+    {
+    }
+
+    over "VisualMaterials"
+    {
+    }
+}
+

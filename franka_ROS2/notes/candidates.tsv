@@ -1,0 +1,4 @@
+title	year	venue	status	arxiv_id	pdf_url	code_url	topic	verify_url
+Bridging the Sim-to-Real Gap with multipanda_ros2: A Real-Time ROS2 Framework for Multimanual Systems	2026	IEEE ICRA 2026	arXiv掲載確認・会議掲載はarXivのjournal referenceで確認	2602.02269	https://arxiv.org/pdf/2602.02269	https://github.com/tenfoldpaper/multipanda_ros2	複数腕・ros2_control・MuJoCo・実機とシミュレーションの共通制御	https://arxiv.org/abs/2602.02269
+GELLO: A General, Low-Cost, and Intuitive Teleoperation Framework for Robot Manipulators	2023	未確認	arXiv掲載確認・会議採録先は未確認	2309.13037	https://arxiv.org/pdf/2309.13037	https://github.com/wuphilipp/gello_software	テレオペレーション・実演収集・Franka向けROS 2実装	https://arxiv.org/abs/2309.13037
+OpenVLA: An Open-Source Vision-Language-Action Model	2024	未確認	arXiv掲載確認・franka_ros2実機への直接統合は未確認	2406.09246	https://arxiv.org/pdf/2406.09246	https://github.com/openvla/openvla	VLA推論・REST serving・ROS 2接続アダプタの検討	https://arxiv.org/abs/2406.09246

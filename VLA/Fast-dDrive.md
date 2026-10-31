@@ -1,0 +1,539 @@
+---
+title: "Fast-dDrive: Efficient Block-Diffusion VLM for Autonomous Driving"
+date: "2026-05-22"
+authors: "Kewei Zhang; Jin Wang; Sensen Gao; Chengyue Wu; Yulong Cao; Songyang Han"
+url: https://arxiv.org/abs/2605.23163
+pdf: https://arxiv.org/pdf/2605.23163
+converter: pymupdf4llm
+---
+
+> **[PDF を開く](https://arxiv.org/pdf/2605.23163)** / [論文ページ](https://arxiv.org/abs/2605.23163)
+>
+> PDF から自動変換した本文です。図は含まず、数式と表は崩れている場合があります。
+
+2026-5-26 
+
+
+# **Fast-dDrive: Efficient Block-Diffusion VLM for Autonomous Driving** 
+
+**Kewei Zhang**<sup>1*</sup> **Jin Wang**<sup>3,2*</sup> **Sensen Gao**<sup>2</sup> **Chengyue Wu**<sup>3,2</sup> **Yulong Cao**<sup>2</sup> **Songyang Han**<sup>2</sup> **Boris Ivanovic**<sup>2</sup> **Langechuan Liu**<sup>2</sup> **Marco Pavone**<sup>2</sup> **Song Han**<sup>4,2</sup> **Daquan Zhou**<sup>1†</sup> **Enze Xie**<sup>2†</sup> 1Peking University 2NVIDIA 3The University of Hong Kong 4MIT *Equal contribution †Co-lead 
+
+End-to-end autonomous driving via Vision-Language-Action (VLA) models demands a precarious balance between high-fidelity trajectory planning and efficient inference. Existing paradigms typically fall short: autoregressive (AR) VLAs are memory-bandwidth-bound on edge hardware and prone to exposure-bias drift, while full-sequence diffusion models preclude KV-cache reuse and suffer from “logical leakage” that violates the fundamental perceive-then-plan causality. We present Fast-dDrive, a block-diffusion VLA that performs bidirectional refinement within semantic units while enforcing strict causal ordering across them. Leveraging the observation that driving VLAs often emit structured JSON-like outputs, Fast-dDrive freezes structural tokens into a section scaffold and employs a section-aware training recipe that prioritizes safety-critical planning. We further introduce Scaffold Speculative Decoding to achieve AR-equivalent quality at significantly higher throughput. Finally, we propose a low-overhead test-time scaling scheme: by forking _𝑁_ stochastic trajectory rollouts from a single shared-prefix KV cache and averaging them, we effectively suppress prediction variance at a fractional computational cost. Empirical results demonstrate that Fast-dDrive redefines the speed-accuracy frontier for driving agents. On the WOD-E2E test set, Fast-dDrive achieves SOTA ADE@3s and ADE@5s, alongside the highest RFS among diffusion-based VLAs; on nuScenes, it reduces average L2 error to 0 _._ 32m (a 22% improvement). When integrated with SGLang, our framework delivers 12 _×_ throughput speedup over the AR baseline, narrowing the gap between high-capacity VLAs and the efficiency demands of real-time on-vehicle deployment. **Links:** Github Code _|_ Project Page 
+
+## **1. Introduction** 
+
+End-to-end (E2E) autonomous driving has progressed rapidly by unifying perception, reasoning, and planning within a single trainable system (Hu et al., 2023; Jiang et al., 2023; Xu et al., 2025). A growing line of work extends this paradigm with Vision-Language Models (VLMs) and Vision-Language-Action (VLA) models (Tian et al., 2024; Zhou et al.; Rowe et al., 2025; Ma et al., 2025), which leverage broad world knowledge and natural-language reasoning to handle the long-tail scenarios that dominate real-world driving and to expose interpretable explanations of the agent’s decisions. For any such system to be practically useful, two requirements must be met _simultaneously_ : the predicted trajectory must be accurate and globally consistent with the model’s reasoning, and inference must be efficient enough on edge hardware at batch size one to remain competitive with classical planners. Existing VLAs typically satisfy at most one of these criteria. 
+
+Driving VLAs are predominantly built on autoregressive (AR) decoders inherited from general-purpose VLMs (Liu et al., 2023; Bai et al., 2025), which emit the structured reasoning trace and the trajectory tokens one at a time. Sequential decoding causes a well-known _exposure-bias_ effect: each waypoint conditions on previously emitted (and possibly noisy) coordinates, so small errors at the start of a 5 s plan can compound into physically implausible maneuvers (Huang et al., 2025). In addition, single-token decoding at batch size one is strictly memory-bandwidth-bound on modern GPUs: each new token reloads the full set of model weights while leaving the available parallel compute largely idle, making efficient on-vehicle deployment fundamentally hard (Wu et al., 2026, 2025). 
+
+Recent diffusion-based language models (Nie et al., 2025; You et al., 2025; Yu et al., 2025), typically formulated as masked-diffusion modeling (MDM) where masked tokens are iteratively unmasked via bidirectional attention, 
+
+© 2026 NVIDIA. All rights reserved. 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+
+Figure 1 _|_ (a) Comparison of E2E driving VLA paradigms. AR VLAs are memory-bandwidth-bound at batch size one and produce only one token per forward pass; full-sequence diffusion VLAs preclude KV-cache reuse and admit logical leakage across the perceive-then-plan stages. Fast-dDrive overcomes both via section-aligned block diffusion, and further pre-fills template tokens as a frozen scaffold to accelerate inference and inject schema priors. (b) Our combined approach achieves up to 11.8 _×_ end-to-end speedup compared to the AR baseline, measured on a single NVIDIA H100 GPU. 
+
+replace AR with iterative denoising that provides global context at every refinement step. Applied to driving, dVLM-AD (Ma et al., 2025) reformulates the structured driving response as a single bidirectional denoising target and improves reasoning–action consistency over AR baselines, but at two structural costs: (i) fullsequence bidirectional attention precludes KV-cache reuse, keeping end-to-end latency far above AR baselines; and (ii) treating the response as one bidirectional unit ignores its inherent causal structure (perception, explanation, meta-behavior decision, and trajectory in that order), admitting _logical leakage_ where the planned trajectory can retroactively influence the model’s stated perception. We instead propose Fast-dDrive (Figure 1), a block-diffusion VLA that decodes the structured driving output section by section under strict causal ordering, with bidirectional refinement confined within each section, directly resolving both costs while preserving the global-context benefit of diffusion. 
+
+On top of this paradigm, Fast-dDrive further exploits a structural observation about modern driving VLMs (Ma et al., 2025; Rowe et al., 2025; Zhou et al.): their structured outputs bundle perception, chain-of-thought, and trajectory into a schema-defined JSON whose keys and syntax are determined entirely by the schema rather than by the model (Gu et al., 2026). We treat those deterministic tokens as a frozen _scaffold_ and denoise only the value tokens, concentrating model capacity on the few positions that actually require prediction. Building on this scaffold and the Fast-dVLM (Wu et al., 2026) architecture with a Qwen2.5-VL-3B (Bai et al., 2025) backbone, our contributions span three axes: a section-weighted, noise-adaptive training scheme that prioritizes safety-critical reasoning; a scaffold-aware self-speculative decoder that auto-accepts structural tokens and verifies an MDM draft with the AR head, delivering AR-quality outputs at substantially lower latency; and a low-overhead test-time inference scaling scheme that, with the deterministic prefix decoded once, samples the AR verifier of Scaffold Speculative Decoding only on the trajectory section and averages a small number of trajectory rollouts forked from a shared KV cache, trading a fraction of additional inference compute for a meaningful accuracy gain. Concretely: 
+
+- **Section-Aware Structured Diffusion (SASD).** A scaffold-based training scheme that aligns block boundaries with semantic sections (ensuring 100% structural validity by construction) and uses sectionweighted cross-entropy together with a section-adaptive Beta noise schedule to concentrate capacity on safety-critical sections, at zero inference overhead. 
+
+- **Scaffold Speculative Decoding and shared-prefix test-time scaling.** Scaffold Speculative Decoding 
+
+2 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+   - (SS) auto-accepts scaffold tokens and lets the AR head verify a parallel MDM draft, producing outputs identical to pure AR at substantially lower latency. We further turn the deterministic SS verifier into a tunable inference-scaling axis: with the prefix decoded once and the verifier sampled at non-zero temperature only on the trajectory section, _𝑁_ trajectory rollouts are forked from a shared KV cache and averaged, trading a fraction of extra inference compute for a meaningful accuracy gain. 
+
+- **State-of-the-art accuracy at 12** _×_ **throughput.** On the WOD-E2E test set, Fast-dDrive achieves the lowest ADE@3s and ADE@5s among compared methods while maintaining the highest RFS among diffusionbased VLAs. It delivers this SOTA accuracy at over 200 tokens per second on a single H100—representing a 6 _×_ throughput increase over full-sequence diffusion and 4 _×_ over AR baselines. When integrated with SGLang, this efficiency gain scales to a 12 _×_ speedup over AR baselines, demonstrating that high-capacity VLAs can effectively bridge the gap toward real-time on-vehicle deployment without accuracy compromises. 
+
+These results indicate block-diffusion VLAs, when paired with structure-aware training and inference, can match or exceed the accuracy of strong AR and full-sequence-diffusion baselines while running at substantially higher throughput, without sacrificing the interpretability of structured CoT outputs. 
+
+## **2. Related Work** 
+
+**Vision-Language-Action Models for Autonomous Driving.** Vision-Language-Action (VLA) models unify perception, reasoning, and planning within a single multimodal framework. Autoregressive VLAs leverage language-model reasoning to improve trajectory prediction in long-tail scenarios, with recent works further incorporating chain-of-thought reasoning (Wang et al., 2024; Tian et al., 2024; Zhou et al.). However, AR decoding is inherently sequential and memory-bandwidth-bound at batch size 1 (Wu et al., 2026), a critical efficiency bottleneck for latency-sensitive driving deployments, and the autoregressive factorization introduces exposure bias that compounds waypoint errors over longer horizons. To address these issues, diffusion-based VLAs have been explored for driving. dVLM-AD (Ma et al., 2025) applies discrete masked diffusion to jointly generate structured reasoning and trajectories, improving behavior-trajectory consistency. Concurrent works (Li et al., 2025; Wen et al., 2025) also adopt discrete diffusion for driving VLAs. However, these methods rely on full-sequence bidirectional diffusion, which precludes KV-cache reuse and incurs high computational overhead. Our work addresses this efficiency gap by adopting block diffusion, enabling parallel generation within blocks while maintaining causal ordering across blocks. 
+
+**Diffusion Large Language Models.** Discrete diffusion for text has progressed from foundational formulations (Austin et al., 2021; Li et al., 2022) through refined masked diffusion objectives (Lou et al., 2024; Sahoo et al., 2024; Shi et al., 2024) to large-scale models such as LLaDA (Nie et al., 2025) and Dream (Ye et al., 2025) that match autoregressive performance. Post-training methods (Zhu et al., 2025; Wang et al., 2025) further align diffusion LMs with human preferences, and multimodal extensions (Yang et al., 2025; You et al., 2025; Yu et al., 2025) integrate visual instruction tuning. A key limitation of full-sequence diffusion LMs is the inability to leverage KV caching. Block Diffusion (Arriola et al., 2025) addresses this by partitioning the output into fixed-size blocks with bidirectional attention _within_ blocks and causal attention _across_ blocks, recovering KV-cache compatibility. Fast-dVLM (Wu et al., 2026) extends this to vision-language models, achieving a significant speedup over AR baselines via direct AR-to-diffusion conversion and self-speculative decoding (Wu et al., 2025). Our work builds upon Fast-dVLM and introduces structure-aware scaffold diffusion with safety-prioritized training that exploits the structured output format of autonomous driving. 
+
+**Efficient Decoding and Test-Time Scaling** . Speculative decoding (Leviathan et al., 2023; Chen et al., 2023) accelerates AR generation by drafting multiple tokens for parallel verification. Self-speculative variants (Zhang et al., 2024) eliminate the separate draft model by reusing the same model for both drafting and verification. Fast-dLLM (Wu et al., 2025) extends this to block diffusion, where the MDM head drafts tokens via bidirectional attention and an AR pass with causal attention verifies the draft. Medusa (Cai et al., 2024) and EAGLE (Li et al., 2024a) propose lightweight draft heads for tree-structured verification, further improving acceptance rates. Our Scaffold Speculative Decoding builds on the self-speculative framework of Fast-dLLM but exploits the known output structure to auto-accept scaffold tokens and skip redundant verification. Test-time compute scaling has been explored through Best-of-N sampling (Cobbe et al., 2021; Lightman et al., 2023), reward-guided search (Snell et al., 2024), and multi-modal trajectory selection in diffusion planners (Liao et al., 2025; Yang et al., 2024). These approaches typically require a separate verifier or a large sample budget. Our shared-prefix rollout scheme instead exploits the deterministic structure of the first three 
+
+3 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+sections to amortize prefix computation, applying stochasticity only to the trajectory section at a fractional per-rollout cost. 
+
+## **3. Methodology** 
+
+We present Fast-dDrive, a block-diffusion VLA for end-to-end autonomous driving. We first review the block-diffusion formulation (§3.1), then describe our structure-aware scaffold diffusion training (§3.2), the two inference modes it admits (Section Diffusion and Scaffold Speculative Decoding, §3.3), and a low-overhead test-time inference scaling scheme that decodes the deterministic prefix once and averages multiple stochastic trajectory-section rollouts forked from a shared KV cache (§3.4). 
+
+### **3.1. Preliminaries: Block-Causal Masked Diffusion** 
+
+**Masked Diffusion Language Models.** Let **x** 0 = ( _𝑥_ 1 _, . . . , 𝑥𝐿_ ) be the target token sequence and **c** = ( **v** _,_ **p** ) the conditioning context (visual features and text prompt). A masked diffusion model (Sahoo et al., 2024) defines a forward process that randomly replaces tokens with a special [MASK] token according to a noise schedule _{𝜆𝑡}_<sup>_𝑇_</sup> _𝑡_ =1<sup>,yieldingacorruptedsequence</sup><sup>**x**</sup><sup>_𝑡_.Thereverseprocessappliesadenoisingpolicy</sup><sup>_𝑝𝜃_that</sup> predicts replacements for masked positions while keeping visible tokens fixed. Training minimizes the masked cross-entropy loss: 
+
+
+where _ℳ𝑡_ = _{𝑖_ : _𝑥_<sup>_𝑖_</sup> _𝑡_<sup>= [MASK]</sup><sup>_}_isthesetofmaskedindicesatstep</sup><sup>_𝑡_.</sup> 
+
+**Block-Causal Diffusion.** Full-sequence bidirectional diffusion (Nie et al., 2025) precludes KV-cache reuse and requires full recomputation at every denoising step. Block Diffusion (Arriola et al., 2025) addresses this by partitioning the output into _𝐵_ blocks of size _𝑑_ : **x** 0 = [ **b** 1 _, . . . ,_ **b** _𝐵_ ], where blocks are generated left-to-right with _bidirectional_ attention within each block and _causal_ attention across blocks. Formally, block **b** _𝑗_ attends to the full prompt **c** and all preceding blocks **b** 1: _𝑗−_ 1 (whose KV cache can be reused), but not to future blocks **b** _𝑗_ +1: _𝐵_ . This recovers KV-cache compatibility while retaining parallel generation within each block. 
+
+Fast-dVLM (Wu et al., 2026) extends block diffusion to vision-language models via direct conversion from autoregressive VLMs, and introduces _self-speculative decoding_ (Wu et al., 2025): for each block, the MDM head drafts all tokens in parallel via bidirectional attention, then an AR head with causal attention verifies the draft sequentially, accepting tokens until the first mismatch plus one bonus token. This achieves significant speedup with quality equivalent to pure AR decoding. 
+
+|Section<br>Value|Scaffold|Blocks|
+|---|---|---|
+|`critical_objects`<br>12|80|1|
+|`explanation`<br>192|6|6|
+|`future_meta_behavior`<br>6|18|1|
+|`trajectory`<br>70|20|3|
+|**Total**<br>**280**|**124**|**11**|
+|`{`<br>|||
+|`"critical_objects": {`|||
+|`"nearby_vehicle":"`<br>`yes", "pedestrian"`|`:"`<br>`no",`||
+|`"cyclist":"`<br>`no", "traffic_element":"`<br>`y`<br>`"road_hazard":"`<br>`no", "weather_conditi`<br>`"construction":"`<br>`no", "emergency_vehi`<br>`"animal":"`<br>`no", "special_vehicle":"`<br>`no`<br>`"conflicting_vehicle":"`<br>`no",`<br>`"door_opening_vehicle":"`<br>`no"`<br>`},`|`es",`<br>`on":"`<br>`no",`<br>`cle":"`<br>`no",`<br>`",`||
+|`"explanation": "`<br>`This`<br>`is`<br>`an`<br>`ex`<br>`am`<br>`ple.",`|||
+|`"future_meta_behavior": {`<br>`"longitudinal": "`<br>`de`<br>`cel`<br>`er`<br>`ate",`<br>`"lateral": "`<br>`keep`<br>`lane"`<br>`},`<br>`"trajectory":`|||
+|`"`<br>`[[`<br>`+003.30,`<br>`-`<br>`000.01],`<br>`[`<br>`+006.71,`<br>`-`<br>`000`<br>`[`<br>`+010.12,`<br>`-`<br>`000.09],`<br>`[`<br>`+013.42,`<br>`-`<br>`000`<br>`[`<br>`+016.30,`<br>`-`<br>`000.24]]"`<br>`}`|`.04],`<br>`.16],`||
+
+
+Table 1 _|_ **Top** : per-section value/scaffold token counts in our schema. The scaffold accounts for _∼_ 30% of decoded tokens. **Bottom** : an example structured output of FastdDrive. Only <mark>`value tokens`</mark> need to be decoded. 
+
+### **3.2. Structure-Aware Scaffold Diffusion** 
+
+Following prior work (MaMa et al.,, 2025;; Rowe et al., 
+
+**Scaffold Construction and Section-Aligned Blocks.** Following prior work (MaMa et al.,, 2025;; Rowe et al., 2025; Gu et al., 2026), the model outputs a structured JSON with four semantic sections: `critical_objects` 
+
+4 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+
+Figure 2 _|_ Pipeline of Fast-dDrive during training. The structured JSON output is decomposed into four semantic sections; template tokens form a frozen _scaffold_ (grey, pre-filled and never masked), while value tokens are denoised in section-aligned blocks with bidirectional attention within each block and strict causal ordering across sections. SASD adds per-section loss weights and Beta noise schedules at training time only. 
+
+(12 binary detections), `explanation` (free-form reasoning), `future_meta_behavior` (categorical actions), and `trajectory` (5 waypoint coordinates over 5 s). These sections differ dramatically in token count, difficulty, and safety impact. 
+
+We exploit the fixed JSON schema by pre-filling all structural tokens (keys, brackets, punctuation) as a frozen **scaffold x** ^ _𝑇_ , leaving only _value tokens_ masked. Let _𝒜_ denote scaffold (anchor) positions and _ℰ_ = _{_ 1: _𝐿} ∖𝒜_ the editable value positions; the diffusion process operates exclusively on _ℰ_ : 
+
+
+This guarantees 100% structural correctness and reduces the denoising workload by _∼_ 30% (Table 1). We further align block boundaries with section boundaries, partitioning each section _𝑠_ into _𝑛𝑠_ = _⌈|ℰ𝑠|/𝑑⌉_ blocks. Sections are denoised in the causal order `CO` _→_ `Expl` _→_ `FMB` _→_ `Traj` , each block providing complete intrasection bidirectional context. Variable-length sections use a `NULL` token for padding, stripped at inference time. 
+
+**Safety-Prioritized Training.** The four sections differ vastly in safety impact: a wrong trajectory coordinate may cause a collision, while a slightly imperfect explanation has no such consequence. We introduce two complementary training-time mechanisms to bias learning capacity toward safety-critical sections. _Sectionweighted loss_ assigns each section _𝑠_ a positive scalar weight _𝑤𝑠_ that scales its per-token cross-entropy: 
+
+
+where larger weights are assigned to safety-critical sections so that gradients on hard, high-impact tokens dominate the update. _Section-adaptive noise_ replaces the uniform diffusion schedule with per-section Beta distributions _𝑡𝑠 ∼_ Beta( _𝛼𝑠, 𝛽𝑠_ ), allowing the noise schedule to be tailored to each section’s difficulty profile. Concrete values for _{𝑤𝑠}_ and _{_ ( _𝛼𝑠, 𝛽𝑠_ ) _}_ are reported in §4.1. Both mechanisms incur **zero inference overhead** . 
+
+5 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+
+Figure 3 _|_ Scaffold Speculative Decoding. For each block: (1) scaffold tokens are auto-accepted; (2) the MDM head drafts value tokens via bidirectional attention; (3) the AR head verifies the draft with causal attention, accepting tokens until the first mismatch plus one bonus token. 
+
+**Joint AR and Diffusion Training.** Following Fast-dVLM (Wu et al., 2026), we train under a dual-stream objective that combines our section-weighted MDM loss (Eq. 3) with a token-level causal LM loss _ℒ_ AR over the same response labels on the clean stream: 
+
+
+The diffusion branch learns parallel value denoising under intra-block bidirectional attention, while the causal branch preserves the pretrained AR decoding capability. As shown in §3.3, this joint objective is what enables a single trained Fast-dDrive to expose both a diffusion-only and a self-speculative decoding mode without further fine-tuning. 
+
+### **3.3. Inference: Section Diffusion and Scaffold Spec** 
+
+Because the joint AR + diffusion objective in Eq. (4) preserves both decoding heads on the same weights, Fast-dDrive supports two complementary inference modes over the same scaffold and section-aligned blocks, mirroring the dual-mode setup of Fast-dVLM (Wu et al., 2026). 
+
+**Section Diffusion (SD).** SD reuses the training-time procedure at inference: starting from the pre-filled scaffold **x** ^ _𝑇_ , the MDM head iteratively unmasks value positions section by section over the section-aligned dynamic blocks of §3.2, attending to preceding blocks via cached causal context (i.e., _causal context decoding_ in the sense of Fast-dVLM (Wu et al., 2026)). KV caches from the scaffold and from earlier sections are reused without recomputation, yielding a diffusion-only baseline that does not invoke the AR head. 
+
+**Scaffold Speculative Decoding (SS).** The second mode invokes self-speculative decoding (Wu et al., 2025, 2026), in which the MDM head drafts a block in parallel and the AR head verifies it sequentially. Vanilla self-spec operates on fixed-size blocks without awareness of scaffolds or section structure; we extend it to **Scaffold Speculative Decoding** (SS), which exploits the scaffold from §3.2 to further reduce computational overhead while preserving generation quality. 
+
+**Algorithm.** Given the pre-filled scaffold **x** ^ _𝑇_ , Scaffold Spec processes each block **b** _𝑗_ in the section-ordered sequence as follows: 
+
+1. **Auto-accept scaffold** : All scaffold positions within **b** _𝑗_ are directly accepted without drafting or verification. Only value positions _ℰ𝑗_ = _ℰ∩_ **b** _𝑗_ enter the draft-verify cycle. 
+
+2. **Draft** (MDM head): A single forward pass with block-bidirectional attention fills all _|ℰ𝑗|_ masked value positions simultaneously, producing draft tokens _{𝑥_ ˜ _𝑖}𝑖∈ℰ𝑗_ . 
+
+3. **Verify** (AR head): A causal forward pass over the entire block computes AR logits. For each value position _𝑖 ∈ℰ𝑗_ in left-to-right order, if arg max _𝑝𝜃_<sup>AR</sup> ( _· |_ **x** _<𝑖_ ) = _𝑥_ ˜ _𝑖_ , the token is accepted; otherwise, the AR token 
+
+6 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+replaces the draft and all subsequent draft tokens are discarded. One bonus token is always accepted at the rejection point. 
+
+**Efficiency Analysis.** Each block requires exactly 2 forward passes (draft + verify), regardless of block size. The key speedup over vanilla self-speculative decoding comes from two sources: (1) scaffold tokens are auto-accepted with _zero_ forward passes; (2) section-aligned blocks ensure that the MDM draft has complete semantic context, improving draft acceptance rate compared to arbitrary fixed-size blocks. Combined, this yields a remarkable speedup over standard self-speculative decoding. 
+
+### **3.4. Test-Time Inference Scaling via Shared-Prefix Multi-Trajectory Rollouts** 
+
+Scaffold Spec (§3.3) decodes the structured output deterministically: a single SS pass already returns the model’s most-confident trajectory. To convert additional inference compute into additional accuracy, we introduce stochasticity _inside_ the AR verifier and average _𝑁_ trajectory rollouts. Two design choices keep this scheme both cheap and quality-preserving. 
+
+**Trajectory-only stochasticity.** The first three sections ( `critical_objects` , `explanation` , `future_meta_behavior` ) are heavily structured by the schema and have sharply peaked posteriors; sampling them adds no useful diversity and only degrades downstream sections. We therefore keep the AR verifier greedy on the first three sections and only enable softmax sampling once decoding enters the trajectory section. 
+
+**Shared prefix.** Because the first three sections are deterministic, their KV cache is identical across rollouts. We decode them _once_ , fork the KV cache _𝑁_ times, and continue Scaffold Spec on the trajectory section _𝑁_ times, each with independent random draws. Since the trajectory section is short relative to the full output, this adds only a fractional cost per extra rollout rather than a full SS pass. 
+
+
+Figure 4 _|_ Shared-prefix multi-trajectory rollouts. **(a)** On a representative WOD-E2E val sample, _𝑁_ =4 rollouts (light blue) disagree most at the late waypoints, while their mean (dark blue) lies on top of the ground truth (black). **(b)** Mean ADE@5s on WOD-E2E val decreases monotonically with _𝑁_ , confirming the varianceof-the-mean argument. 
+
+**Trajectory averaging.** Let _{_ **_𝜏_**<sup>(</sup><sup>_𝑖_)</sup> _}_<sup>_𝑁_</sup> _𝑖_ =1<sup>bethe</sup><sup>_𝑁_</sup> rollout trajectories, each interpolated to 20 way= points via Jerk-Minimizing Trajectory (JMT) fitting. The output is the equal-weight average **_𝜏_** out _𝑁_ <u>1</u> ∑︀ _𝑁𝑖_ =1<sup>**_𝜏_**(</sup><sup>_𝑖_)</sup><sup>_._Bythevariance-of-the-meanargument,averaging</sup><sup>_𝑁_rolloutsreducesresidualvariancebya</sup> factor of 1 _/𝑁_ while leaving any deterministic bias unchanged. Each rollout is still produced by Scaffold Spec (only the trajectory-section verifier step is sampled), so per-rollout quality stays close to the deterministic SS baseline, a regime that sampling the verifier on the full output cannot reach. 
+
+Figure 4 illustrates the effect: individual rollouts disagree mostly at the late waypoints, their mean lies closer to the ground truth than any single rollout, and mean ADE@5s decreases monotonically with _𝑁_ . 
+
+## **4. Experiments** 
+
+### **4.1. Experimental Setup** 
+
+**Datasets.** We evaluate in open-loop settings on two established benchmarks. **nuScenes** (Caesar et al., 2020) contains 1,000 urban driving scenes split 700/150/150 for train/val/test, with annotated keyframes sampled at 2 Hz. **Waymo Open Dataset End-to-End (WOD-E2E)** (Xu et al., 2025) comprises 4,021 long-tail driving segments of 20 s each, split 2,037/479/1,505; for test evaluation, only the first 12 s of each segment are provided and predictions must be generated from information available up to that point. We 
+
+7 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+Table 2 _|_ Comparison on WOD-E2E **test set** .<sup>_*_</sup> : zero-shot (no fine-tuning).<sup>_†_</sup> : measured by us with the original backbone under the same conditions as our model. TPS and Tok/Step are measured on a single H100. 
+
+|Method|Paradigm|RFS _↑_|ADE (5s) _↓_|ADE (3s) _↓_|TPS _↑_|Tok/Step _↑_|
+|---|---|---|---|---|---|---|
+|OpenEMMA<sup>_*_ </sup>(Xing et al., 2025)|AR|5.158|12.476|6.684|–|1|
+|LightEMMA<sup>_*_ </sup>(Qiao et al., 2025)|AR|6.517|3.740|1.705|–|1|
+|NaiveEMMA|AR|7.528|3.018|1.320|–|1|
+|AutoVLA (Zhou et al.)|AR|7.557|2.958|1.351|51.2<sup>_†_</sup><br>|1|
+|Poutine-Base (Rowe et al., 2025)|AR|**7.909**|2.940|1.270|51.2<sup>_†_</sup>|1|
+|dVLM-AD (Ma et al., 2025)|Diffusion|7.633|3.022|1.285|35.2|2.82|
+|Fast-dDrive (Scaffold Spec)|Block Diff.|7.823|_2.907_|_1.254_|**210.4**|**4.90**|
+|+ Inference scaling (N=4)|Block Diff.|_7.827_|**2.821**|**1.240**|_114.7_|2.76|
+
+
+adopt the chain-of-thought annotations from dVLM-AD (Ma et al., 2025) for the four-section structured output. Sensor specifications and capture rates are deferred to Appendix A. 
+
+**Input Modalities.** The model consumes RGB camera frames, ego state, and a high-level navigation command; we use no LiDAR, radar, or HD map. Following prior open-loop VLA work (Ma et al., 2025; Rowe et al., 2025), we use 3 past front-camera frames spanning the last 1 s on nuScenes and the 3 front-facing cameras at the current frame on WOD-E2E; each image is resized so that the longer side is at most 512 px before being patchified by Qwen2.5-VL’s vision encoder. Frame timestamps, per-view sizing, and the joint-view WOD-E2E variant we explored are detailed in Appendix A. 
+
+**Evaluation Metrics.** _Planning accuracy._ For nuScenes, following dVLM-AD (Ma et al., 2025), we report the L2 distance error at 1/2/3 s horizons. For WOD-E2E, we report Average Displacement Error (ADE) at 3 s and 5 s horizons, and Rater Feedback Score (RFS) (Xu et al., 2025), a human-aligned trust-region score where higher values indicate better matches to multiple human-rated reference trajectories. _Inference efficiency._ On a single NVIDIA H100 with batch size 1 we report _Latency_ (ms per sample), _TPS_ (tokens per second), and _Tok/Step_ (tokens committed per model forward pass; AR decoding gives Tok/Step=1). 
+
+**Implementation Details.** Fast-dDrive is built on Qwen2.5-VL-3B (Bai et al., 2025) converted to the Fast-dVLM (Wu et al., 2026) block-diffusion architecture and outputs a structured JSON of the four sections defined in §3.2. We train the model on 8 _×_ H100 GPUs with block-causal attention, fine-tuning for 3 epochs on the WOD-E2E training set. For WOD-E2E we mix the 30k CoT-annotated samples with an additional 60k trajectory-only samples (no CoT) to improve trajectory coverage; the nuScenes training set (23k samples) is used separately. SASD instantiates Eq. (3) with section loss weights _{𝑤𝑠}_ = _{_ 3 _._ 0 _,_ 2 _._ 0 _,_ 1 _._ 5 _,_ 1 _._ 0 _}_ and Beta noise parameters _{_ ( _𝛼𝑠, 𝛽𝑠_ ) _}_ = _{_ (2 _,_ 1) _,_ (1 _,_ 1 _._ 5) _,_ (1 _,_ 2) _,_ (1 _,_ 1) _}_ for `trajectory` , `future_meta_behavior` , `critical_objects` , and `explanation` respectively. Efficiency benchmarks are measured on a single H100. 
+
+### **4.2. Main Results** 
+
+**WOD-E2E Results.** Table 2 reports planning accuracy and decoding throughput on the WOD-E2E test set against representative AR baselines and the diffusion baseline dVLM-AD. With a single inference run, Fast-dDrive (Scaffold Spec) attains the lowest ADE@3s and ADE@5s among the compared methods, and an RFS that surpasses the diffusion baseline dVLM-AD by a clear margin and is competitive with the strongest AR baseline despite our model using neither GRPO post-training nor a larger trajectory pool. Adding the shared-prefix multi-trajectory rollout of §3.4 further reduces both ADE values at sub-2 _×_ wall-clock cost relative to a single Scaffold-Spec pass, since only the trajectory section is rolled out _𝑁_ times from a 
+
+Table 3 _|_ L2 Error on nuScenes **val set** .<sup>_*_</sup> : zeroshot. 
+
+|Method||L2 Erro|r (m) _↓_||
+|---|---|---|---|---|
+||1s|2s|3s|**Avg.**|
+|_Training-based Policy_|||||
+|UniAD (Hu et al., 2023)|0.20|0.42|0.75|0.46|
+|VAD-Base (Jiang et al., 2023)|0.17|0.34|0.60|0.37|
+|BEV-Planner (Li et al., 2024b)|0.16|0.32|0.57|0.35|
+|_VLMs / VLAs with Reasoning_|||||
+|OpenEMMA<sup>_*_ </sup>(Xing et al., 2025)|1.45|3.21|3.76|2.81|
+|DriveVLM (Tian et al., 2024)|0.18|0.34|0.68|0.40|
+|AutoVLA (Zhou et al.)|0.25|0.46|0.73|0.48|
+|dVLM-AD (Ma et al., 2025)|0.15|0.40|0.68|0.41|
+|Fast-dDrive (ours)|**0.12**|**0.33**|**0.50**|**0.32**|
+
+
+8 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+forked KV cache. On efficiency, Fast-dDrive runs at 4 _×_ –6 _×_ the decoding throughput of dVLM-AD and the AR baselines while committing _∼_ 5 tokens per model forward pass, giving a clear advantage on the accuracy–efficiency Pareto frontier. 
+
+**nuScenes Results.** Table 3 reports L2 errors on the nuScenes validation set following the dVLM-AD (Ma et al., 2025) protocol. Fast-dDrive achieves the lowest average L2 among the listed VLM/VLA systems with reasoning, with consistent gains over the diffusion and AR-with-CoT baselines across all three horizons; it also matches or improves upon classical training-based driving policies that lack interpretable reasoning. Combined with the WOD-E2E results, this indicates that our structure-aware design transfers between predominantly nominal urban driving and long-tail scenarios without per-dataset tuning. 
+
+### **4.3. Efficiency & Performance Analysis** 
+
+Table 4 compares Fast-dDrive inference variants against the AR baseline (Qwen2.5-VL-3B trained with the same data and recipe but standard autoregressive decoding) and dVLM-AD on the WOD-E2E validation set (single H100, batch size 1). 
+
+Among the Fast-dDrive variants, Scaffold Spec achieves the lowest latency and highest throughput, nearly doubling the TPS of vanilla self-speculative decoding while matching its accuracy. The speedup stems from scaffold auto-acceptance, which removes _∼_ 30% of tokens from the draft-verify loop. Compared to dVLM-AD, which requires full-sequence recomputation at every denoising step, Scaffold Spec achieves roughly 6 _×_ the throughput by combining block-level KV-cache reuse with scaffold-aware speculative acceptance. The AR baseline, despite sharing the same backbone and training data, is both slower (limited to one token per forward pass) and less accurate than the block-diffusion variants, suggesting that bidirectional context within blocks produces more globally consistent trajectories than purely sequential decoding. Section Diffusion yields competitive throughput but slightly higher ADE than the speculative variants, indicating that causal AR verification contributes meaningfully to trajectory quality; this accuracy gap motivates the shared-prefix rollout scheme of §3.4. All Fast-dDrive variants substantially outperform dVLM-AD on both ADE and RFS, confirming that section-aware block diffusion with SASD training is more effective than full-sequence diffusion for structured driving outputs. Finally, integrating Scaffold Spec into SGLang (Zheng et al., 2024) yields an additional _∼_ 3 _×_ speedup via optimized kernels and CUDA graph, demonstrating that the algorithmic gains compose well with system-level optimizations. 
+
+Table 4 _|_ Inference efficiency and accuracy comparison on WOD-E2E val set. Latency: average wall-clock time per sample. TPS: tokens per second (including scaffold tokens). Tok/Step: effective tokens committed per model forward pass. 
+
+|Method|Decoding|Latency (ms) _↓_|TPS _↑_|Tok/Step _↑_|ADE (3s) _↓_|ADE (5s) _↓_|RFS _↑_|
+|---|---|---|---|---|---|---|---|
+|AR Baseline (Qwen2.5-VL-3B)|Autoregressive|7855|51.6|1|0.839|2.083|7.931|
+|dVLM-AD (Full-seq MDM)|Iterative Denoise|9575 (0.8_×_)|35.2|2.82|1.119|3.024|7.187|
+|Fast-dDrive (Self-Spec)|Draft + Verify|3714 (2.1_×_)|109.0|2.41|0.811|1.973|7.959|
+|Fast-dDrive (Section Diffusion)|Iterative MDM|3006 (2.6_×_)|134.4|3.28|0.840|2.058|7.928|
+|+Scaffold Spec|Scaffold + D&V|1919 (4.1_×_)|210.4|4.90|0.812|1.982|7.934|
+|+SGLang|Scaffold + D&V|665 (11.8_×_)|608.5|4.93|0.816|1.995|7.914|
+
+
+### **4.4. Ablation Studies** 
+
+We ablate the two components of SASD training (SectionImportance-Weighted Loss, IWL; Section-Adaptive Noise Schedule, SNS) by re-training under each of the four on/off combinations while holding all other factors fixed; results are in Table 5. IWL is the primary contributor: by up-weighting trajectory and meta-behavior tokens, it directly amplifies the gradient on the positions most critical for planning quality, yielding a clear RFS improvement over the uniform-weight baseline. SNS alone provides a smaller but complementary gain by biasing the noise schedule toward harder denoising configurations for safety-critical 
+
+Table 5 _|_ SASD ablation (WOD-E2E val, Scaffold Spec). IWL: Section-ImportanceWeighted Loss. SNS: Section-Adaptive Noise Schedule. 
+
+|IWL|SNS|ADE (5s) _↓_|RFS _↑_|
+|---|---|---|---|
+|||2.028|7.735|
+|✓||2.003|7.855|
+||✓|2.050|7.807|
+|✓|✓|2.034|**7.916**|
+
+
+9 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+sections. When combined, IWL and SNS achieve the best RFS 
+
+among all configurations, indicating that loss weighting and noise shaping address complementary aspects of the training objective. 
+
+Table 4 further confirms that Scaffold Spec is the most efficient inference method at no accuracy cost relative to Self-Spec, while Section Diffusion offers a useful alternative when diversity is needed (see §3.4). For test-time scaling, Figure 4(b) shows that ADE@5s decreases monotonically with the number of trajectory rollouts _𝑁_ ; we adopt _𝑁_ =4 as the default, which provides a favorable accuracy–latency trade-off. 
+
+## **5. Conclusion** 
+
+We presented Fast-dDrive, a block-diffusion VLA that exploits the inherent structure of driving outputs to simultaneously advance planning accuracy and inference efficiency. By treating deterministic schema tokens as a frozen scaffold, aligning diffusion blocks with semantic sections, and prioritizing safety-critical tokens during training, Fast-dDrive achieves state-of-the-art trajectory accuracy at 6 _×_ the throughput of full-sequence diffusion baselines, demonstrating that structured generation and efficient decoding are complementary rather than conflicting objectives. The shared-prefix multi-trajectory rollout scheme further shows that block diffusion naturally admits a low-cost test-time scaling axis unavailable to AR models. We believe these results point toward a broader principle: when model outputs have known structure, encoding that structure into the diffusion process yields compounding gains in both quality and speed. 
+
+10 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+## **A. Input Modalities: Full Details** 
+
+This appendix gives the complete per-dataset description of the visual inputs and image-processing pipeline summarized in §4.1. 
+
+**nuScenes.** Following dVLM-AD (Ma et al., 2025), we use only the front camera ( `CAM_FRONT` ) and provide three frames covering the past 1 s at relative timestamps _𝑡 ∈{−_ 1 _._ 0 _, −_ 0 _._ 5 _,_ 0 _}_ s relative to the prediction time. The three frames are presented to the model in chronological order so that short-horizon ego-motion cues (acceleration, yaw rate, immediate-future intent) are recoverable from the visual input alone, complementing the explicit ego-state vector. We do not use the side or rear cameras of nuScenes; the front-camera-only setup matches the dVLM-AD evaluation protocol and keeps the comparison fair. 
+
+**WOD-E2E.** Following Poutine (Rowe et al., 2025), we use the three front-facing cameras ( `FRONT_LEFT` , `FRONT` , `FRONT_RIGHT` ) of WOD-E2E at the current frame ( _𝑡_ = 0 s), rather than all eight surround views. Although omitting the side and rear views reduces contextual coverage, in our preliminary experiments we found the three forward views sufficient for the open-loop planning task while keeping the visual token budget tractable for our 3B-parameter backbone. 
+
+**Joint-view variant on WOD-E2E.** As an additional variant, we explore a _joint-view_ input in which the three WOD-E2E front views are horizontally concatenated ( `FRONT_LEFT` _|_ `FRONT` _|_ `FRONT_RIGHT` ) into a single panoramic image before resizing. Compared with feeding the three views as three separate images, the joint-view variant trades per-view resolution for a single-image visual context and roughly halves the visual token count, at the cost of a wider but lower-resolution panorama. 
+
+**Image resizing.** For both datasets and both WOD-E2E variants, we resize each input image so that its longer side is at most 512 pixels, with the aspect ratio preserved, before patchification by Qwen2.5-VL’s native vision encoder. We do not perform any cropping, color jittering, or other photometric augmentation at inference time; at training time we follow the standard Qwen2.5-VL preprocessing pipeline. 
+
+**Non-visual inputs.** On both datasets, the model is conditioned on the ego state at the prediction time (position, velocity, acceleration, yaw, yaw rate, in the ego frame) and a high-level natural-language navigation command (e.g., “go straight,” “turn left at the next intersection”), serialized into the prompt prior to the visual tokens. We do not use LiDAR, radar, HD maps, or any other auxiliary sensor modality. 
+
+## **B. Qualitative Case Studies** 
+
+We present five qualitative examples drawn from _five different_ Waymo end-to-end driving scenes to illustrate Fast-dDrive’s behaviour across diverse driving regimes: a planned left turn at night, lane-following behind a pickup truck, a right turn into a side street, a green-light cruise through a signalised intersection, and a wet-weather left turn at a stop-controlled intersection (the same scene used in our demo video, §4.1). In each figure the left panel is the cylindrical panorama ( `FRONT_LEFT` _|_ `FRONT` _|_ `FRONT_RIGHT` ) with the _ground-truth_ future trajectory overlaid (blue gradient, near _→_ far), and the right panel is the top-down trajectory plot of Fast-dDrive’s predicted waypoints in vehicle frame (green gradient, near _→_ far) — matching the demo-video style. Below each figure we list the raw JSON Chain-of-Thought that Fast-dDrive produced for that frame (Scaffold-Spec, single rollout); only the <mark>`value tokens`</mark> are decoded by the model. The model’s predictions match the GT trajectory direction in every case. 
+
+These five cases together span the most informative planning regimes encountered in our evaluation: a deliberate steering manoeuvre with a clear road, longitudinal-only following behind another vehicle, a sharp lateral commit at a turn, a green-light cruise that exercises the traffic-element detection head, and a wetweather left turn that demands joint reasoning over traffic infrastructure and adverse road conditions. In every case the structured Chain-of-Thought emitted by Scaffold-Spec is concise, self-consistent with the visible scene, and the predicted trajectory follows the GT direction. 
+
+11 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+
+- `{ "critical_objects": { "nearby_vehicle":` <mark>`"no"`</mark> `, "pedestrian":` <mark>`"no"`</mark> `, "cyclist":` <mark>`"no"`</mark> `, "construction":` <mark>`"no"`</mark> `, "traffic_element":` <mark>`"no"`</mark> `, "weather_condition":` <mark>`"no"`</mark> `, "road_hazard":` <mark>`"no"`</mark> `, "emergency_vehicle":` <mark>`"no"`</mark> `, "animal":` <mark>`"no"`</mark> `, "special_vehicle":` <mark>`"no"`</mark> `, "conflicting_vehicle":` <mark>`"no"`</mark> `, "door_opening_vehicle":` <mark>`"no"`</mark> 
+
+- `}, "future_meta_behavior": { "longitudinal":` <mark>`"speed up"`</mark> `, "lateral":` <mark>`"left turn"`</mark> `}, "explanation":` <mark>`"There are no visible vehicles, pedestrians, cyclists, construction, or traffic elements in the immediate vicinity that would affect the ego vehicle’s path within the next`</mark> `3` <mark>`seconds. The road ahead appears clear with no obstacles or hazards requiring the ego vehicle to slow down, yield, or change lanes. The ego vehicle is expected to continue accelerating and make`</mark> `a` <mark>`left turn smoothly without interference."`</mark> `,` 
+
+- `"trajectory":` <mark>`"[[+1.27, +0.03], [+4.21, +0.42], [+8.20, +1.90], [+12.08, +5.38], [+14.50, +10.72]]"`</mark> 
+
+- `}` 
+
+Figure 5 _|_ **Night left turn into a clear cross street.** With no critical objects in the scene, Fast-dDrive commits to `speed up / left turn` and emits a smoothly curving trajectory whose 5-second arc tracks the GT (blue) tightly across the FRONT and FRONT_LEFT cameras. 
+
+## **C. Limitations** 
+
+While Fast-dDrive significantly improves the throughput and planning accuracy of driving VLAs, it has certain limitations. First, our Scaffold Construction relies on a fixed JSON schema; while this covers the majority of current end-to-end driving tasks, it may require manual template adjustment if the task definition (e.g., the number of detected objects or the granularity of reasoning) changes fundamentally. Second, the shared-prefix inference scaling provides accuracy gains at the cost of some additional compute; while this cost is fractional, it may still be constrained in extremely low-latency edge environments where even a single additional forward pass is prohibitive. Finally, our current evaluation is focused on open-loop benchmarks. Although these are standard for assessing planning quality against human experts, future work should involve closed-loop simulations to further validate the model’s reactive capabilities in dynamic environments. 
+
+12 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+
+- `{ "critical_objects": { "nearby_vehicle":` <mark>`"yes"`</mark> `, "pedestrian":` <mark>`"no"`</mark> `, "cyclist":` <mark>`"no"`</mark> `, "construction":` <mark>`"no"`</mark> `, "traffic_element":` <mark>`"no"`</mark> `, "weather_condition":` <mark>`"no"`</mark> `, "road_hazard":` <mark>`"no"`</mark> `, "emergency_vehicle":` <mark>`"no"`</mark> `, "animal":` <mark>`"no"`</mark> `, "special_vehicle":` <mark>`"no"`</mark> `, "conflicting_vehicle":` <mark>`"no"`</mark> `, "door_opening_vehicle":` <mark>`"no"`</mark> 
+
+- `},` 
+
+- `"future_meta_behavior": { "longitudinal":` <mark>`"keep speed"`</mark> `, "lateral":` <mark>`"lane follow"`</mark> `},` 
+
+- `"explanation":` <mark>`"There is`</mark> `a` <mark>`nearby vehicle visible ahead in the front camera, approximately in the ego lane, which may influence the ego vehicle’s speed and lane keeping. This vehicle’s presence requires the ego vehicle to maintain`</mark> `a` <mark>`safe following distance and possibly adjust speed. No pedestrians, cyclists, construction, or traffic elements are present that would affect the ego vehicle’s immediate path. No conflicting vehicles or other hazards are detected that would require yielding or lane changes."`</mark> `,` 
+
+- `"trajectory":` <mark>`"[[+15.66, -0.10], [+31.65, -0.42], [+47.85, -1.02], [+64.15, -1.85], [+80.46, -2.77]]"`</mark> 
+
+- `}` 
+
+Figure 6 _|_ **Lane follow with a pickup truck ahead.** The model flags the single lead vehicle as critical, picks `lane follow / keep speed` , and emits a long forward trajectory that maintains the lane while keeping pace with the lead. GT (blue) and the predicted final waypoint agree on the longitudinal range. 
+
+
+- `{ "critical_objects": {` 
+
+   - `"nearby_vehicle":` <mark>`"yes"`</mark> `, "pedestrian":` <mark>`"no"`</mark> `, "cyclist":` <mark>`"no"`</mark> `,` 
+
+   - `"construction":` <mark>`"no"`</mark> `, "traffic_element":` <mark>`"no"`</mark> `, "weather_condition":` <mark>`"no"`</mark> `,` 
+
+   - `"road_hazard":` <mark>`"no"`</mark> `, "emergency_vehicle":` <mark>`"no"`</mark> `, "animal":` <mark>`"no"`</mark> `,` 
+
+   - `"special_vehicle":` <mark>`"no"`</mark> `, "conflicting_vehicle":` <mark>`"no"`</mark> `, "door_opening_vehicle":` <mark>`"no"`</mark> 
+
+```
+},
+```
+
+- `"future_meta_behavior": { "longitudinal":` <mark>`"keep speed"`</mark> `, "lateral":` <mark>`"right turn"`</mark> `},` 
+
+- `"explanation":` <mark>`"There is`</mark> `a` <mark>`nearby vehicle visible ahead in the front camera, positioned in the ego lane, which may influence the ego vehicle’s speed and lateral positioning. This vehicle’s presence requires the ego vehicle to adjust longitudinal behavior, likely slowing or maintaining speed to keep`</mark> `a` <mark>`safe distance. No pedestrians, cyclists, or conflicting vehicles are observed that would require yielding or stopping. No traffic elements or road hazards are present to affect immediate behavior. The ego vehicle is expected to execute`</mark> `a` <mark>`right lateral maneuver based on the trajectory, aligning with the right turn, while adjusting speed accordingly."`</mark> `,` 
+
+- `"trajectory":` <mark>`"[[+6.50, -1.77], [+13.50, -5.00], [+20.88, -8.80], [+28.40, -12.88], [+35.90, -17.00]]"`</mark> 
+
+```
+}
+```
+
+Figure 7 _|_ **Sharp right turn off a multi-lane road.** Fast-dDrive flips the lateral channel to `right turn` and emits a deeply curving trajectory whose lateral excursion reaches _−_ 17 m at 5 s. The predicted arc tracks the GT (blue) closely across the FRONT _→_ FRONT_RIGHT seam. 
+
+13 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+
+```
+{
+```
+
+```
+"critical_objects":{
+```
+
+- `"nearby_vehicle":` <mark>`"no"`</mark> `, "pedestrian":` <mark>`"no"`</mark> `, "cyclist":` <mark>`"no"`</mark> `,` 
+
+- `"construction":` <mark>`"no"`</mark> `, "traffic_element":` <mark>`"yes"`</mark> `, "weather_condition":` <mark>`"no"`</mark> `,` 
+
+- `"road_hazard":` <mark>`"no"`</mark> `, "emergency_vehicle":` <mark>`"no"`</mark> `, "animal":` <mark>`"no"`</mark> `,` 
+
+- `"special_vehicle":` <mark>`"no"`</mark> `, "conflicting_vehicle":` <mark>`"no"`</mark> `, "door_opening_vehicle":` <mark>`"no"`</mark> 
+
+```
+},
+```
+
+- `"future_meta_behavior": { "longitudinal":` <mark>`"speed up"`</mark> `, "lateral":` <mark>`"go straight"`</mark> `},` 
+
+- `"explanation":` <mark>`"The traffic lights visible ahead in the front camera are relevant as they regulate the ego vehicle’s movement through the intersection. They are currently green, allowing the ego vehicle to proceed. No nearby vehicles, pedestrians, or other hazards are present that would require yielding or stopping. The ego vehicle is expected to continue moving forward while monitoring the traffic signal for any changes, adjusting speed accordingly to maintain safe and lawful travel through the intersection."`</mark> `,` 
+
+- `"trajectory":` <mark>`"[[+6.40, -0.02], [+14.62, -0.15], [+23.52, -0.62], [+32.12, -1.76], [+39.99, -3.47]]"`</mark> 
+
+- `}` 
+
+Figure 8 _|_ **Green-light cruise through a signalised intersection.** The model correctly reads the green signal, tags only `traffic_element` as critical, and commits to `speed up / go straight` . The forward trajectory matches the GT (blue) heading down the same lane through the junction. 
+
+
+```
+"critical_objects":{
+```
+
+- `"nearby_vehicle":` <mark>`"no"`</mark> `, "pedestrian":` <mark>`"no"`</mark> `, "cyclist":` <mark>`"no"`</mark> `,` 
+
+- `"construction":` <mark>`"no"`</mark> `, "traffic_element":` <mark>`"yes"`</mark> `, "weather_condition":` <mark>`"yes"`</mark> `,` 
+
+- `"road_hazard":` <mark>`"no"`</mark> `, "emergency_vehicle":` <mark>`"no"`</mark> `, "animal":` <mark>`"no"`</mark> `,` 
+
+- `"special_vehicle":` <mark>`"no"`</mark> `, "conflicting_vehicle":` <mark>`"no"`</mark> `, "door_opening_vehicle":` <mark>`"no"`</mark> 
+
+```
+},
+```
+
+- `"future_meta_behavior": { "longitudinal":` <mark>`"slow down"`</mark> `, "lateral":` <mark>`"left turn"`</mark> `},` 
+
+- `"explanation":` <mark>`"There is`</mark> `a` <mark>`stop sign clearly visible on the right side of the intersection, which is`</mark> `a` <mark>`critical traffic element requiring the ego vehicle to yield or stop before proceeding. Additionally, the road surface appears wet from rain, indicating slippery conditions that may affect braking distance and vehicle control. No nearby vehicles, pedestrians, or other conflicting objects are present that would immediately impact the ego vehicle’s path. The ego vehicle must account for the stop sign and weather conditions to safely navigate the intersection, potentially slowing down and ensuring safe stopping or yielding before continuing the planned left turn."`</mark> `,` 
+
+- `"trajectory":` <mark>`"[[+2.12, +0.09], [+5.50, +0.88], [+8.85, +3.00], [+11.38, +6.40], [+12.73, +10.77]]"`</mark> 
+
+
+Figure 9 _|_ **Wet-weather left turn at a stop-controlled intersection** (same scene as the demo video). FastdDrive jointly tags the stop sign ( `traffic_element` ) and the wet road ( `weather_condition` ), commits to `slow down / left turn` , and emits a sharply curving trajectory that swings from FRONT into FRONT_LEFT. The cylindrical projection (§A) keeps the arc geometrically continuous across the camera seam, and the predicted curve overlays the GT (blue) closely for the entire 5 s. 
+
+14 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+## **References** 
+
+- Marianne Arriola, Aaron Gokaslan, Justin T Chiu, Zhihan Yang, Zhixuan Qi, Jiaqi Han, Subham Sekhar Sahoo, and Volodymyr Kuleshov. Block diffusion: Interpolating between autoregressive and diffusion language models. _arXiv preprint arXiv:2503.09573_ , 2025. 
+
+- Jacob Austin, Daniel D Johnson, Jonathan Ho, Daniel Tarlow, and Rianne Van Den Berg. Structured denoising diffusion models in discrete state-spaces. _Advances in neural information processing systems_ , 34: 17981–17993, 2021. 
+
+- Shuai Bai, Keqin Chen, Xuejing Liu, Jialin Wang, Wenbin Ge, Sibo Song, Kai Dang, Peng Wang, Shijie Wang, Jun Tang, Humen Zhong, Yuanzhi Zhu, Mingkun Yang, Zhaohai Li, Jianqiang Wan, Pengfei Wang, Wei Ding, Zheren Fu, Yiheng Xu, Jiabo Ye, Xi Zhang, Tianbao Xie, Zesen Cheng, Hang Zhang, Zhibo Yang, Haiyang Xu, and Junyang Lin. Qwen2.5-vl technical report, 2025. URL `https://arxiv.org/abs/2502.13923` . 
+
+- Holger Caesar, Varun Bankiti, Alex H Lang, Sourabh Vora, Venice Erin Liong, Qiang Xu, Anush Krishnan, Yu Pan, Giancarlo Baldan, and Oscar Beijbom. nuscenes: A multimodal dataset for autonomous driving. In _Proceedings of the IEEE/CVF conference on computer vision and pattern recognition_ , pp. 11621–11631, 2020. 
+
+- Tianle Cai, Yuhong Li, Zhengyang Geng, Hongwu Peng, Jason D Lee, Deming Chen, and Tri Dao. Medusa: Simple llm inference acceleration framework with multiple decoding heads. _arXiv preprint arXiv:2401.10774_ , 2024. 
+
+- Charlie Chen, Sebastian Borgeaud, Geoffrey Irving, Jean-Baptiste Lespiau, Laurent Sifre, and John Jumper. Accelerating large language model decoding with speculative sampling. _arXiv preprint arXiv:2302.01318_ , 2023. 
+
+- Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Nakano, et al. Training verifiers to solve math word problems. _arXiv preprint arXiv:2110.14168_ , 2021. 
+
+- Yi Gu, Yan Wang, Yuxiao Chen, Yurong You, Wenjie Luo, Yue Wang, Wenhao Ding, Boyi Li, Heng Yang, Boris Ivanovic, et al. Accelerating structured chain-of-thought in autonomous vehicles. _arXiv preprint arXiv:2602.02864_ , 2026. 
+
+- Yihan Hu, Jiazhi Yang, Li Chen, Keyu Li, Chonghao Sima, Xizhou Zhu, Siqi Chai, Senyao Du, Tianwei Lin, Wenhai Wang, et al. Planning-oriented autonomous driving. In _Proceedings of the IEEE/CVF conference on computer vision and pattern recognition_ , pp. 17853–17862, 2023. 
+
+- Lei Huang, Weijiang Yu, Weitao Ma, Weihong Zhong, Zhangyin Feng, Haotian Wang, Qianglong Chen, Weihua Peng, Xiaocheng Feng, Bing Qin, et al. A survey on hallucination in large language models: Principles, taxonomy, challenges, and open questions. _ACM Transactions on Information Systems_ , 43(2):1–55, 2025. 
+
+- Bo Jiang, Shaoyu Chen, Qing Xu, Bencheng Liao, Jiajie Chen, Helong Zhou, Qian Zhang, Wenyu Liu, Chang Huang, and Xinggang Wang. Vad: Vectorized scene representation for efficient autonomous driving. In _Proceedings of the IEEE/CVF International Conference on Computer Vision_ , pp. 8340–8350, 2023. 
+
+- Yaniv Leviathan, Matan Kalman, and Yossi Matias. Fast inference from transformers via speculative decoding. In _International Conference on Machine Learning_ , pp. 19274–19286. PMLR, 2023. 
+
+- Pengxiang Li, Yinan Zheng, Yue Wang, Huimin Wang, Hang Zhao, Jingjing Liu, Xianyuan Zhan, Kun Zhan, and Xianpeng Lang. Discrete diffusion for reflective vision-language-action models in autonomous driving. _arXiv preprint arXiv:2509.20109_ , 2025. 
+
+- Xiang Li, John Thickstun, Ishaan Gulrajani, Percy S Liang, and Tatsunori B Hashimoto. Diffusion-lm improves controllable text generation. _Advances in neural information processing systems_ , 35:4328–4343, 2022. 
+
+- Yuhui Li, Fangyun Wei, Chao Zhang, and Hongyang Zhang. Eagle: Speculative sampling requires rethinking feature uncertainty. _arXiv preprint arXiv:2401.15077_ , 2024a. 
+
+15 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+- Zhiqi Li, Zhiding Yu, Shiyi Lan, Jiahan Li, Jan Kautz, Tong Lu, and Jose M Alvarez. Is ego status all you need for open-loop end-to-end autonomous driving? In _Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition_ , pp. 14864–14873, 2024b. 
+
+- Bencheng Liao, Shaoyu Chen, Haoran Yin, Bo Jiang, Cheng Wang, Sixu Yan, Xinbang Zhang, Xiangyu Li, Ying Zhang, Qian Zhang, et al. Diffusiondrive: Truncated diffusion model for end-to-end autonomous driving. In _Proceedings of the Computer Vision and Pattern Recognition Conference_ , pp. 12037–12047, 2025. 
+
+- Hunter Lightman, Vineet Kosaraju, Yuri Burda, Harrison Edwards, Bowen Baker, Teddy Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl Cobbe. Let’s verify step by step. In _The twelfth international conference on learning representations_ , 2023. 
+
+- Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong Jae Lee. Visual instruction tuning. _Advances in neural information processing systems_ , 36:34892–34916, 2023. 
+
+- Aaron Lou, Chenlin Meng, and Stefano Ermon. Discrete diffusion modeling by estimating the ratios of the data distribution. In _Proceedings of the 41st International Conference on Machine Learning_ , pp. 32819–32848, 2024. 
+
+- Yingzi Ma, Yulong Cao, Wenhao Ding, Shuibai Zhang, Yan Wang, Boris Ivanovic, Ming Jiang, Marco Pavone, and Chaowei Xiao. dvlm-ad: Enhance diffusion vision-language-model for driving via controllable reasoning. _arXiv preprint arXiv:2512.04459_ , 2025. 
+
+- Shen Nie, Fengqi Zhu, Zebin You, Xiaolu Zhang, Jingyang Ou, Jun Hu, Jun Zhou, Yankai Lin, Ji-Rong Wen, and Chongxuan Li. Large language diffusion models. _arXiv preprint arXiv:2502.09992_ , 2025. 
+
+- Zhijie Qiao, Haowei Li, Zhong Cao, and Henry X Liu. Lightemma: Lightweight end-to-end multimodal model for autonomous driving. _arXiv preprint arXiv:2505.00284_ , 2025. 
+
+- Luke Rowe, Rodrigue de Schaetzen, Roger Girgis, Christopher Pal, and Liam Paull. Poutine: Vision-languagetrajectory pre-training and reinforcement learning post-training enable robust end-to-end autonomous driving. _arXiv preprint arXiv:2506.11234_ , 2025. 
+
+- Subham S Sahoo, Marianne Arriola, Yair Schiff, Aaron Gokaslan, Edgar Marroquin, Justin T Chiu, Alexander Rush, and Volodymyr Kuleshov. Simple and effective masked diffusion language models. _Advances in Neural Information Processing Systems_ , 37:130136–130184, 2024. 
+
+- Jiaxin Shi, Kehang Han, Zhe Wang, Arnaud Doucet, and Michalis Titsias. Simplified and generalized masked diffusion for discrete data. _Advances in neural information processing systems_ , 37:103131–103167, 2024. 
+
+- Charlie Snell, Jaehoon Lee, Kelvin Xu, and Aviral Kumar. Scaling llm test-time compute optimally can be more effective than scaling model parameters. _arXiv preprint arXiv:2408.03314_ , 2024. 
+
+- Xiaoyu Tian, Junru Gu, Bailin Li, Yicheng Liu, Yang Wang, Zhiyong Zhao, Kun Zhan, Peng Jia, Xianpeng Lang, and Hang Zhao. Drivevlm: The convergence of autonomous driving and large vision-language models. _arXiv preprint arXiv:2402.12289_ , 2024. 
+
+- Tianqi Wang, Enze Xie, Ruihang Chu, Zhenguo Li, and Ping Luo. Drivecot: Integrating chain-of-thought reasoning with end-to-end driving. _arXiv preprint arXiv:2403.16996_ , 2024. 
+
+- Yinjie Wang, Ling Yang, Bowen Li, Ye Tian, Ke Shen, and Mengdi Wang. Revolutionizing reinforcement learning framework for diffusion large language models. _arXiv preprint arXiv:2509.06949_ , 2025. 
+
+- Junjie Wen, Minjie Zhu, Jiaming Liu, Zhiyuan Liu, Yicun Yang, Linfeng Zhang, Shanghang Zhang, Yichen Zhu, and Yi Xu. dvla: Diffusion vision-language-action model with multimodal chain-of-thought. _arXiv preprint arXiv:2509.25681_ , 2025. 
+
+- Chengyue Wu, Hao Zhang, Shuchen Xue, Zhijian Liu, Shizhe Diao, Ligeng Zhu, Ping Luo, Song Han, and Enze Xie. Fast-dllm: Training-free acceleration of diffusion llm by enabling kv cache and parallel decoding. _arXiv preprint arXiv:2505.22618_ , 2025. 
+
+16 
+
+Fast-dDrive : Efficient Block-Diffusion VLM for Autonomous Driving 
+
+- Chengyue Wu, Shiyi Lan, Yonggan Fu, Sensen Gao, Jin Wang, Jincheng Yu, Jose M Alvarez, Pavlo Molchanov, Ping Luo, Song Han, et al. Fast-dvlm: Efficient block-diffusion vlm via direct conversion from autoregressive vlm. _arXiv preprint arXiv:2604.06832_ , 2026. 
+
+- Shuo Xing, Chengyuan Qian, Yuping Wang, Hongyuan Hua, Kexin Tian, Yang Zhou, and Zhengzhong Tu. Openemma: Open-source multimodal model for end-to-end autonomous driving. In _Proceedings of the Winter Conference on Applications of Computer Vision_ , pp. 1001–1009, 2025. 
+
+- Runsheng Xu, Hubert Lin, Wonseok Jeon, Hao Feng, Yuliang Zou, Liting Sun, John Gorman, Ekaterina Tolstaya, Sarah Tang, Brandyn White, et al. Wod-e2e: Waymo open dataset for end-to-end driving in challenging long-tail scenarios. _arXiv preprint arXiv:2510.26125_ , 2025. 
+
+- Brian Yang, Huangyuan Su, Nikolaos Gkanatsios, Tsung-Wei Ke, Ayush Jain, Jeff Schneider, and Katerina Fragkiadaki. Diffusion-es: Gradient-free planning with diffusion for autonomous and instruction-guided driving. In _Proceedings of the IEEE/CVF conference on computer vision and pattern recognition_ , pp. 15342–15353, 2024. 
+
+- Ling Yang, Ye Tian, Bowen Li, Xinchen Zhang, Ke Shen, Yunhai Tong, and Mengdi Wang. Mmada: Multimodal large diffusion language models. _arXiv preprint arXiv:2505.15809_ , 2025. 
+
+- Jiacheng Ye, Zhihui Xie, Lin Zheng, Jiahui Gao, Zirui Wu, Xin Jiang, Zhenguo Li, and Lingpeng Kong. Dream 7b: Diffusion large language models. _arXiv preprint arXiv:2508.15487_ , 2025. 
+
+- Zebin You, Shen Nie, Xiaolu Zhang, Jun Hu, Jun Zhou, Zhiwu Lu, Ji-Rong Wen, and Chongxuan Li. Llada-v: Large language diffusion models with visual instruction tuning. _arXiv preprint arXiv:2505.16933_ , 2025. 
+
+- Runpeng Yu, Xinyin Ma, and Xinchao Wang. Dimple: Discrete diffusion multimodal large language model with parallel decoding. _arXiv preprint arXiv:2505.16990_ , 2025. 
+
+- Jun Zhang, Jue Wang, Huan Li, Lidan Shou, Ke Chen, Gang Chen, and Sharad Mehrotra. Draft& verify: Lossless large language model acceleration via self-speculative decoding. In _Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)_ , pp. 11263–11282, 2024. 
+
+- Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, Chuyue Sun, Jeff Huang, Cody H Yu, Shiyi Cao, Christos Kozyrakis, Ion Stoica, Joseph E Gonzalez, et al. Sglang: Efficient execution of structured language model programs. _Advances in neural information processing systems_ , 37:62557–62583, 2024. 
+
+- Zewei Zhou, Tianhui Cai, Seth Z Zhao, Yun Zhang, Zhiyu Huang, Bolei Zhou, and Jiaqi Ma. Autovla: A vision-language-action model for end-to-end autonomous driving with adaptive reasoning and reinforcement fine-tuning. In _The Thirty-ninth Annual Conference on Neural Information Processing Systems_ . 
+
+- Fengqi Zhu, Rongzhen Wang, Shen Nie, Xiaolu Zhang, Chunwei Wu, Jun Hu, Jun Zhou, Jianfei Chen, Yankai Lin, Ji-Rong Wen, et al. Llada 1.5: Variance-reduced preference optimization for large language diffusion models. _arXiv preprint arXiv:2505.19223_ , 2025. 
+
+17 
+
