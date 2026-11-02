@@ -88,6 +88,5 @@ Blender の USD 読み込みでは配置が崩れるので、`ext.py` の OBJ �
 - `payloads/materials.usda` は `../textures/` を参照していますが、実際のフォルダは `Textures/` です。Windows では解決できても、Linux の Isaac Sim ではテクスチャが見つからなくなります。
 - ハンドの 9 メッシュには法線も UV もありません。腕の 50 メッシュにはどちらもあります。
 - `SHA256SUMS` は元の配布物の値で、変更後のファイルとは一致しません。
-- `Finger_Aluminum` と `Hand_Aluminum` は名前と違い、ユニクロメッキ調の値です。
 - 色、粗さ、`ior` は実測値でも Franka 公式の値でもありません。ハンドは見た目だけで、関節、衝突判定、質量がありません。
 - Isaac Sim では一度も開いていません。確認は `usd-core` と Blender だけです。

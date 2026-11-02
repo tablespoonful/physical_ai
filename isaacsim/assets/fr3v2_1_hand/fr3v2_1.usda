@@ -79,7 +79,7 @@ def Xform "fr3v2_1" (
                                                             def Shader "PreviewSurface"
                                                             {
                                                                 uniform token info:id = "UsdPreviewSurface"
-                                                                color3f inputs:diffuseColor = (0.56, 0.7, 0.92)
+                                                                color3f inputs:diffuseColor = (0.913, 0.922, 0.924)
                                                                 float inputs:metallic = 1
                                                                 float inputs:roughness = 0.3
                                                                 int inputs:useSpecularWorkflow = 0
@@ -94,7 +94,7 @@ def Xform "fr3v2_1" (
                                                             def Shader "PreviewSurface"
                                                             {
                                                                 uniform token info:id = "UsdPreviewSurface"
-                                                                color3f inputs:diffuseColor = (0.56, 0.7, 0.92)
+                                                                color3f inputs:diffuseColor = (0.913, 0.922, 0.924)
                                                                 float inputs:metallic = 1
                                                                 float inputs:roughness = 0.3
                                                                 int inputs:useSpecularWorkflow = 0
